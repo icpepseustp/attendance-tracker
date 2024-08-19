@@ -19,9 +19,11 @@ class ScanPage extends BaseView<ScanController> {
       appBar: const NavbarWidget(currentPage: Routes.SCAN),
       body: Stack(
         children: [
-          MobileScanner(
-            onDetect: (capture) => controller.onQrDetect(context, capture)
+           MobileScanner(
+            controller: controller.mobileScannerController,
+            onDetect: (capture) => controller.onQrDetect(context, capture),
           ),
+          
           ScannerOverlayWidget(),
           Positioned(
             bottom: 30,
@@ -64,7 +66,24 @@ class ScanPage extends BaseView<ScanController> {
                 ],
               ),
             )
-          )
+          ),
+            Positioned(
+            top: 35,
+            left: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.center,
+              child:  InkWell(
+                onTap: controller.toggleTorch,
+                child:  Obx(() => SvgPicture.asset(
+                  controller.getTorchIcon(),
+                  color: AppColors.ICONCOLOR,
+                  width: 50,
+                  height: 50,
+                ))
+              ),
+            ),
+          ),
         ],
       ),
     );

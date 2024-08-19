@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -6,6 +7,18 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class ScanController extends BaseController {
   var isScanning = true.obs;
   var overlaySize = 0.7.obs;
+  var isTorchEnabled = false.obs;
+  final MobileScannerController mobileScannerController = MobileScannerController();
+
+  String getTorchIcon(){
+    return isTorchEnabled.value? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
+  }
+
+  void toggleTorch(){
+    debugPrint('Torch clicked');
+    mobileScannerController.toggleTorch();
+    isTorchEnabled.value = !isTorchEnabled.value;
+  }
 
   void stopScanning() {
     isScanning.value = false; // Set to false to stop scanning

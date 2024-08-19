@@ -77,6 +77,10 @@ flutter:
     - assets/icons/settings_icon.svg
     - assets/icons/plus_zoom_icon.svg
     - assets/icons/minus_zoom_icon.svg
+    - assets/icons/delete_icon.svg
+    - assets/icons/search_icon.svg
+    - assets/icons/torch_on_icon.svg
+    - assets/icons/torch_off_icon.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

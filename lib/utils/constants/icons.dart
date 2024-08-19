@@ -6,4 +6,8 @@ class AppIcons {
   static const SETTINGS = 'assets/icons/settings_icon.svg';
   static const ZOOMIN = 'assets/icons/plus_zoom_icon.svg';
   static const ZOOMOUT = 'assets/icons/minus_zoom_icon.svg';
+  static const DELETEICON = 'assets/icons/delete_icon.svg';
+  static const SEARCHICON = 'assets/icons/search_icon.svg';
+  static const TORCHONICON = 'assets/icons/torch_on_icon.svg';
+  static const TORCHOFFICON = 'assets/icons/torch_off_icon.svg';
 }
