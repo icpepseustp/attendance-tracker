@@ -1,3 +1,4 @@
+import 'package:attendance_tracker/controllers/navbar_controller.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/widgets/base_widgets.dart';
@@ -7,21 +8,29 @@ import 'package:flutter_svg/flutter_svg.dart';
 class NavbarIconWidget extends BaseWidget {
   final String icon;
   final String label;
-  
+  final String navRoute;
+  final String currentPage;
+  final NavbarController controller;
+    
   const NavbarIconWidget({
     Key? key,
     required this.icon,
-    required this.label
+    required this.label,
+    required this.navRoute,
+    required this.currentPage,
+    required this.controller
   });
 
   @override
   Widget build(BuildContext context){
     return Expanded(
-      child: Container(
-      decoration: const BoxDecoration(
+      child: InkWell(
+        onTap: () => controller.handleOnTap(navRoute),
+        child: Container(
+      decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColors.UNDERLINECOLOR,
+            color: controller.handleIsSelected(currentPage, navRoute),
             width: 5
           )
         )
@@ -42,6 +51,7 @@ class NavbarIconWidget extends BaseWidget {
       ],
     ),
     ),
+      )
     );
   }
 }

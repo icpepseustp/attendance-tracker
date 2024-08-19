@@ -1,13 +1,13 @@
 import 'package:attendance_tracker/bindings/base_binding.dart';
+import 'package:attendance_tracker/controllers/history_controller.dart';
 import 'package:attendance_tracker/controllers/navbar_controller.dart';
-import 'package:attendance_tracker/controllers/scan_controller.dart';
 import 'package:get/get.dart';
 
-class ScanBinding extends BaseBinding {
+class HistoryBinding extends BaseBinding{
   @override
-  void dependencies() {
-    Get.lazyPut<ScanController>(
-      () => ScanController(),
+  void dependencies(){
+    Get.lazyPut<HistoryController>(
+      () => HistoryController()
     );
 
     Get.lazyPut<NavbarController>(
