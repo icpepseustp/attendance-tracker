@@ -31,8 +31,7 @@ class ScanPage extends BaseView<ScanController> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Center items within the Row
+                mainAxisAlignment:MainAxisAlignment.center, // Center items within the Row
                 children: [
                   SvgPicture.asset(
                     AppIcons.ZOOMIN,
