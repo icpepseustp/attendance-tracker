@@ -1,6 +1,5 @@
 class StudentDetailsModel{
-  final String studentName, date, time;
-  final int studentId; 
+  final String studentName, studentId, date, time; 
 
   StudentDetailsModel({
     required this.studentName,

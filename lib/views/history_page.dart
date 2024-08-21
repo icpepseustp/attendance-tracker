@@ -51,6 +51,7 @@ class HistoryPage extends BaseView<HistoryController> {
                 children: [
                   StudentDetailsWidget(
                     studentDetails: controller.studentDetails,
+                    controller: controller,
                   ),
                 ],
               ),

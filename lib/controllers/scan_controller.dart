@@ -107,15 +107,18 @@ class ScanController extends BaseController {
   }
 
   Future<void> _addStudentAttendance(String name, String idNumber, String course) async {
-    final Map<String, dynamic> attendanceData = {
+    final Map<String, dynamic> studentData = {
       'name': name,
       'ID_number': idNumber,
       'Course': course,
-      'timestamp': DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+    };
+
+    final Map<String, dynamic> attendanceData = {
+      'date': DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
     };
 
     try {
-      await _service.createAttendance(attendanceData);
+      await _service.createStudentAttendance(idNumber, studentData, attendanceData);
       debugPrint('Attendance recorded');
     } catch (e) {
       debugPrint('Error adding attendance record: $e');
