@@ -10,8 +10,8 @@ class FirestoreService extends GetxService {
   }
 
   Future<DocumentReference> createAttendance(Map<String, dynamic> data) async {
-    final String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    return _create(currentDate, data);
+    // final String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    return _create('Attendance', data);
   } 
   
 }

@@ -1,11 +1,16 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanController extends BaseController {
+  ScanController(this._service);
+
+  final FirestoreService _service;
   var isScanning = true.obs;
   var overlaySize = 0.7.obs;
   var isTorchEnabled = false.obs;
@@ -32,24 +37,9 @@ class ScanController extends BaseController {
   void handleDisplaySizeChange(double value){
     overlaySize.value = value;
   }
-  
-
-  Future<void> onQrDetect(BuildContext context, BarcodeCapture capture) async {
-    if (isScanning.value) {
-      // Pause scanning
-      stopScanning();
-
-      final List<Barcode> barcodes = capture.barcodes;
-      final Barcode firstBarcode = barcodes.first;
-      if (firstBarcode.rawValue != null) {
-        final String code = firstBarcode.rawValue!;
-        debugPrint('code: $code');
-        handleQrCode(context, code);
-      }
-    }
-  }
 
   void handleQrCode(BuildContext context, String code) {
+
     // Split the QR code by spaces
     List<String> stringParts = code.split(RegExp(r'\s+'));
     
@@ -63,8 +53,8 @@ class ScanController extends BaseController {
     String idNumber = stringParts[stringParts.length - 2];
     String course = stringParts.last;
 
-
-
+    _addStudentAttendance(name, idNumber, course);
+    
     showDialog(
       context: context,
       barrierDismissible: true, // Allows the user to dismiss the dialog by tapping outside of it
@@ -98,8 +88,44 @@ class ScanController extends BaseController {
       await Future.delayed(const Duration(milliseconds: 500));
       startScanning(); // Resume scanning after the dialog is dismissed
     });
-}
+  }
+  
 
+  Future<void> onQrDetect(BuildContext context, BarcodeCapture capture) async {
+    if (isScanning.value) {
+      // Pause scanning
+      stopScanning();
+
+      final List<Barcode> barcodes = capture.barcodes;
+      final Barcode firstBarcode = barcodes.first;
+      if (firstBarcode.rawValue != null) {
+        final String code = firstBarcode.rawValue!;
+        debugPrint('code: $code');
+        handleQrCode(context, code);
+      }
+    }
+  }
+
+  Future<void> _addStudentAttendance(String name, String idNumber, String course) async {
+    final Map<String, dynamic> attendanceData = {
+      'name': name,
+      'ID_number': idNumber,
+      'Course': course,
+      'timestamp': DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+    };
+
+    try {
+      await _service.createAttendance(attendanceData);
+      debugPrint('Attendance recorded');
+    } catch (e) {
+      debugPrint('Error adding attendance record: $e');
+      showSnackBar('Error', 'Failed to add attendance record', Colors.red);
+    }
+
+
+  }
+
+  
 
 
 }
