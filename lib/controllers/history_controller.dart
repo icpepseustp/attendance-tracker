@@ -61,7 +61,7 @@ class HistoryController extends BaseController {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              QrWidget(), // Add a QR code widget for each student
+              QrWidget(data: '${student.studentName} - ${student.studentId}'), // Add a QR code widget for each student
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

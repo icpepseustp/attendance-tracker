@@ -74,12 +74,18 @@ class ScanPage extends BaseView<ScanController> {
               alignment: Alignment.center,
               child:  InkWell(
                 onTap: controller.toggleTorch,
-                child:  Obx(() => SvgPicture.asset(
-                  controller.getTorchIcon(),
-                  color: AppColors.ICONCOLOR,
-                  width: 60,
-                  height: 60,
-                ))
+                child:  Obx(
+                  () => Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationX(3.1459),
+                    child: SvgPicture.asset(
+                      controller.getTorchIcon(),
+                      color: AppColors.ICONCOLOR,
+                      width: 60,
+                      height: 60,
+                    )
+                  )
+                )
               ),
             ),
           ),
