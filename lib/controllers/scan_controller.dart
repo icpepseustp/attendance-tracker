@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -42,44 +43,61 @@ class ScanController extends BaseController {
       final Barcode firstBarcode = barcodes.first;
       if (firstBarcode.rawValue != null) {
         final String code = firstBarcode.rawValue!;
+        debugPrint('code: $code');
         handleQrCode(context, code);
       }
     }
   }
 
   void handleQrCode(BuildContext context, String code) {
-  showDialog(
-    context: context,
-    barrierDismissible: true, // Allows the user to dismiss the dialog by tapping outside of it
-    builder: (context) {
-      // Set up a listener for when the dialog is dismissed
-      return WillPopScope(
-        onWillPop: () async {
-          // This will be triggered when the dialog is dismissed by tapping outside
-          await Future.delayed(const Duration(milliseconds: 500));
-          return true; // Allow the pop (dismissal)
-        },
-        child: AlertDialog(
-          title: const Text('QR Code Found'),
-          content: Text('Data: $code'),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-                await Future.delayed(const Duration(milliseconds: 500));
-                startScanning(); // Resume scanning after the dialog is closed
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    },
-  ).then((_) async {
-    // This will be called when the dialog is dismissed (either by pressing OK or tapping outside)
-    await Future.delayed(const Duration(milliseconds: 500));
-    startScanning(); // Resume scanning after the dialog is dismissed
-  });
+    // Split the QR code by spaces
+    List<String> stringParts = code.split(RegExp(r'\s+'));
+    
+    if(stringParts.length < 3) {
+      debugPrint('Invalid QR code content: $code');
+      startScanning();
+      return;
+    }
+
+    String name = stringParts.sublist(0, stringParts.length - 2).join(' ');
+    String idNumber = stringParts[stringParts.length - 2];
+    String course = stringParts.last;
+
+
+
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allows the user to dismiss the dialog by tapping outside of it
+      builder: (context) {
+        // Set up a listener for when the dialog is dismissed
+        return WillPopScope(
+          onWillPop: () async {
+            // This will be triggered when the dialog is dismissed by tapping outside
+            await Future.delayed(const Duration(milliseconds: 500));
+            return true; // Allow the pop (dismissal)
+          },
+          child: AlertDialog(
+            backgroundColor: AppColors.BGCOLOR,
+            title: const Text('QR Code Found'),
+            content: Text('Name: $name \nID Number: $idNumber \nCourse: $course'),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Close the dialog
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  startScanning(); // Resume scanning after the dialog is closed
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      },
+    ).then((_) async {
+      // This will be called when the dialog is dismissed (either by pressing OK or tapping outside)
+      await Future.delayed(const Duration(milliseconds: 500));
+      startScanning(); // Resume scanning after the dialog is dismissed
+    });
 }
 
 

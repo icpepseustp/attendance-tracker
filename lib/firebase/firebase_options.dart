@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '426353485042',
     projectId: 'attendance-tracker-icpep',
     authDomain: 'attendance-tracker-icpep.firebaseapp.com',
-    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app/',
+    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-tracker-icpep.appspot.com',
     measurementId: 'G-866T3HYEEM',
   );
@@ -56,7 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:426353485042:android:3a45909c5045bc67f45c6b',
     messagingSenderId: '426353485042',
     projectId: 'attendance-tracker-icpep',
-    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app/',
+    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-tracker-icpep.appspot.com',
   );
 
@@ -65,7 +65,7 @@ class DefaultFirebaseOptions {
     appId: '1:426353485042:ios:270588eb99f5134ff45c6b',
     messagingSenderId: '426353485042',
     projectId: 'attendance-tracker-icpep',
-    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app/',
+    databaseURL: 'https://attendance-tracker-icpep-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'attendance-tracker-icpep.appspot.com',
     iosBundleId: 'com.example.attendanceTracker',
   );

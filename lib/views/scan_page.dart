@@ -77,8 +77,8 @@ class ScanPage extends BaseView<ScanController> {
                 child:  Obx(() => SvgPicture.asset(
                   controller.getTorchIcon(),
                   color: AppColors.ICONCOLOR,
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                 ))
               ),
             ),
