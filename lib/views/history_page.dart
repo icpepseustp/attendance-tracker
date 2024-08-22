@@ -32,7 +32,7 @@ class HistoryPage extends BaseView<HistoryController> {
           const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

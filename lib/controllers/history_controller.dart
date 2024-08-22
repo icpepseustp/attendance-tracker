@@ -120,7 +120,7 @@ class HistoryController extends BaseController {
                     QrWidget(
                         data:
                             '${student.studentName} - ${student.studentId}'), // Add a QR code widget for each student
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 15),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,25 +157,26 @@ class HistoryController extends BaseController {
                     fillColor: Colors.white, // Set the background color to white
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: AppColors.HISTORYICONCOLOR,
                         width: 1.5,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: AppColors.HISTORYICONCOLOR,
                         width: 2.0,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                         color: AppColors.HISTORYICONCOLOR,
                         width: 1.5,
                       ),
                     ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3)
                   ),
                 ),
               ),
