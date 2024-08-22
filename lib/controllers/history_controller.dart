@@ -69,6 +69,7 @@ class HistoryController extends BaseController {
 
   Future<void> _fetchAttendanceForToday() async {
     try {
+      isLoading.value = true;
       final students = await _service.getAttendanceForToday(null);
       studentDetails.clear();
       studentDetails.addAll(students);
