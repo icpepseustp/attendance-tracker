@@ -10,4 +10,5 @@ class AppIcons {
   static const SEARCHICON = 'assets/icons/search_icon.svg';
   static const TORCHONICON = 'assets/icons/torch_on_icon.svg';
   static const TORCHOFFICON = 'assets/icons/torch_off_icon.svg';
+  static const CANCELICON = 'assets/icons/cancel_icon.svg';
 }

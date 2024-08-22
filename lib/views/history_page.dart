@@ -7,6 +7,7 @@ import 'package:attendance_tracker/widgets/student_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class HistoryPage extends BaseView<HistoryController> {
   const HistoryPage({Key? key}) : super(key: key);
@@ -23,24 +24,10 @@ class HistoryPage extends BaseView<HistoryController> {
             width: double.infinity,
             height: 65,
             decoration: BoxDecoration(color: AppColors.BGCOLORDARK),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SvgPicture.asset(
-                  AppIcons.DELETEICON,
-                  color: AppColors.HISTORYICONCOLOR,
-                  width: 35,
-                  height: 35,
-                ),
-                const SizedBox(width: 20),
-                SvgPicture.asset(
-                  AppIcons.SEARCHICON,
-                  color: AppColors.HISTORYICONCOLOR,
-                  width: 35,
-                  height: 35,
-                ),
-              ],
-            ),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Obx(() => controller.handleSearchBar())
+            )
           ),
           const SizedBox(height: 10),
           Expanded(

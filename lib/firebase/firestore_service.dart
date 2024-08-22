@@ -47,26 +47,21 @@ class FirestoreService extends GetxService {
     return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 
-  // Future<List<Map<String, dynamic>>> getTodaysAttendance(String collectionPath) async {
-  //   try {
-  //     final String dateToday = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  Future<List<Map<String, dynamic>>> searchStudent(String query) async {
+    if(query.isEmpty){
+      return [];
+    }
 
-  //     // Get the start and end of the day
-  //     final startOfDay = DateTime.now().subtract(Duration(hours: DateTime.now().hour, minutes: DateTime.now().minute, seconds: DateTime.now().second, milliseconds: DateTime.now().millisecond));
-  //     final endOfDay = DateTime(startOfDay.year, startOfDay.month, startOfDay.day, 23, 59, 59, 999);
+    QuerySnapshot snapshot = await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
+      .orderBy('name')
+      .startAt([query])
+      .endAt([query + '\uf8ff'])
+      .get();
+    
 
-  //     QuerySnapshot<Map<String, dynamic>> snapshot = await _dbFirestore
-  //       .collection(collectionPath)
-  //       .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
-  //       .where('timestamp', isLessThanOrEqualTo: endOfDay)
-  //       .get();
+    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  }
 
-  //       return snapshot.docs.map((doc) => doc.data()).toList();
-
-  //   } catch (e) {
-  //     debugPrint('Error getting fields with today\'s timestamp: $e');
-  //     return [];
-  //   }
-  // } 
+  
   
 }
