@@ -108,13 +108,14 @@ class ScanController extends BaseController {
 
   Future<void> _addStudentAttendance(String name, String idNumber, String course) async {
     final Map<String, dynamic> studentData = {
-      'name': name,
+      'Name': name,
       'ID_number': idNumber,
       'Course': course,
     };
 
     final Map<String, dynamic> attendanceData = {
-      'date': DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())
+      'Date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      'Time': DateFormat('HH:mm:ss').format(DateTime.now())
     };
 
     try {

@@ -17,7 +17,7 @@ class QrWidget extends BaseWidget {
       child: QrImageView(
         data: data,
         version: QrVersions.auto,
-        size: 70.0,
+        size: 70,
         foregroundColor: AppColors.HISTORYICONCOLOR,
       ),
     );

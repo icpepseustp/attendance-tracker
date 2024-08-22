@@ -18,8 +18,6 @@ class StudentDetailsWidget extends BaseWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => controller.handleHistoryDisplay()
-    );
+    return Obx(() => controller.handleHistoryDisplay());
   }
 }

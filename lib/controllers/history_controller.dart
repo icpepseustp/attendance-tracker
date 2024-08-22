@@ -56,93 +56,69 @@ class HistoryController extends BaseController {
     }
 
     try {
+      isLoading.value = true;
       final students = await _service.searchStudent(query);
       debugPrint('$students');
       studentDetails.clear();
-
-      for (var student in students){
-        String studentId = student['ID_number'];
-         
-        List<Map<String, dynamic>> attendance = await _service.getAttendanceForStudent(studentId);
-
-        for (var record in attendance){
-          studentDetails.add(StudentDetailsModel(
-          studentName: student['name'], 
-          studentId: student['ID_number'], 
-          date: DateFormat('M/d/yyyy').format(DateTime.parse(record['date'])),
-          time: DateFormat('h:mm a').format(DateTime.parse(record['date']))));
-        }
-      }
+      studentDetails.addAll(students);
       isLoading.value = false;
     } catch (e) {
       debugPrint('Error searching students: $e');
-    }
+    } 
   }
 
   Future<void> _fetchAttendanceForToday() async {
     try {
-      final students = await _service.getAllStudents();
+      final students = await _service.getAttendanceForToday(null);
       studentDetails.clear();
+      studentDetails.addAll(students);
+      isLoading.value = false;
 
-      for (var student in students) {
-        String studentId = student['ID_number'];
-
-        List<Map<String, dynamic>> attendance =
-            await _service.getAttendanceForStudent(studentId);
-
-        for (var record in attendance) {
-          studentDetails.add(StudentDetailsModel(
-              studentName: student['name'],
-              studentId: student['ID_number'],
-              date: DateFormat('M/d/yyyy').format(DateTime.parse(record['date'])),
-              time: DateFormat('h:mm a').format(DateTime.parse(record['date']))));
-        }
-        isLoading.value = false;
-
-      }
     } catch (e) {
       debugPrint('Error fetching attendance data: $e');
     }
   }
 
   Widget handleHistoryDisplay() {
-    return isLoading.value
-        ? const Center(child: CircularProgressIndicator())
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: studentDetails.map((student) {
-              return Padding(
-                padding: const EdgeInsets.only(
-                    bottom: 10.0), // Add bottom padding for spacing
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    QrWidget(
-                        data:
-                            '${student.studentName} - ${student.studentId}'), // Add a QR code widget for each student
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${student.studentName} - ${student.studentId}',
-                            style: AppTextStyles.studentDetails,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            '${student.date} \t ${student.time}', // Replace with actual date and time fields if available
-                            style: AppTextStyles.DateAndTime,
-                          ),
-                        ],
-                      ),
+  return isLoading.value
+      ? const Center(child: CircularProgressIndicator())
+      : Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: studentDetails.map((student) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10.0), // Add bottom padding for spacing
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 70, // Ensure consistent width
+                    height: 70, // Ensure consistent height
+                    child: QrWidget(data: '${student.studentName} - ${student.studentId}'),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${student.studentName} - ${student.studentId}',
+                          style: AppTextStyles.studentDetails,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          '${student.date} \t ${student.time}',
+                          style: AppTextStyles.DateAndTime,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            }).toList(),
-          );
-  }
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+}
+
 
   Widget handleSearchBar() {
     return isSearching.value
@@ -203,4 +179,9 @@ class HistoryController extends BaseController {
           );
   }
 
+  @override
+  void onClose(){
+    searchController.dispose();
+    _debounce?.cancel();
+  }
 }
