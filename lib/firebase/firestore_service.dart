@@ -9,52 +9,66 @@ class FirestoreService extends GetxService {
   final _dbFirestore = FirebaseFirestore.instance;
   final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-  // create a new student attendance
-  Future<void> createStudentAttendance(Map<String, dynamic> studentData, Map<String, dynamic> attendanceData) async {
-    final DocumentReference studentRef = _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).doc();
-
-    await _dbFirestore.runTransaction((transaction) async {
-      // set student data
-      transaction.set(studentRef, studentData);
-
-      // add the attendance record to student's subcollection
-      final attendanceRef = studentRef.collection(AppStrings.SUBDBCOLLECTION).doc();
-      transaction.set(attendanceRef, attendanceData);
-    }).catchError((e) {
-      debugPrint('Error during transaction: $e');
-      throw e;
-    });
+  Future<DocumentReference> _createDoc(Map<String, dynamic> docData) async {
+    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).add(docData); 
   }
 
-  // Get attendance for today
-  Future<List<StudentDetailsModel>> getAttendanceForToday(QuerySnapshot? snapshot) async {
-    
-    snapshot ??= await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).get();
-    
-    try {
-      
-      List<StudentDetailsModel> attendanceList = [];
+  Future<DocumentReference> _createSubDoc(Map<String, dynamic> subDocData) async {
+    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).doc().collection(AppStrings.SUBDBCOLLECTION).add(subDocData);
+  }
 
-      // Use Future.wait to fetch all subcollections in parallel
-      final futures = snapshot.docs.map((doc) async {
-        final subCollection = await doc.reference.collection(AppStrings.SUBDBCOLLECTION)
-          .where('Date', isEqualTo: today)
-          .get();
-        
-        final studentDetails = subCollection.docs.map((subDoc) {
-          return StudentDetailsModel.fromSnapshot(doc, subDoc);
-        });
+  // create a new student attendance
+  Future<void> createStudentAttendance(Map<String, dynamic> data, Map<String, dynamic> subData) async {
+    await _createDoc(data);
+    await _createSubDoc(subData);
+  }
 
-        attendanceList.addAll(studentDetails);
-      });
-
-      await Future.wait(futures);
-      return attendanceList;
-    } catch (e) {
-      debugPrint('Error fetching attendance data: $e');
-      return [];
+  Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query) async {
+    if(query != null){
+      return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
+      .orderBy('Name')
+      .startAt([query])
+      .endAt([query + '\uf8ff'])
+      .get();
+    }else {
+      return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).get();
     }
   }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> _getSubDoc(String uid)async{
+    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
+      .doc(uid)
+      .collection(AppStrings.SUBDBCOLLECTION)
+      .where('Date', isEqualTo: today)
+      .get();
+  }
+
+
+// Get attendance for today
+Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
+  try {
+
+    final QuerySnapshot<Map<String, dynamic>> mainDocs = await _getMainDoc(query);
+
+    List<StudentDetailsModel> attendanceList = [];
+
+    final futures = mainDocs.docs.map((mainDoc) async {
+      final QuerySnapshot<Map<String, dynamic>> subDocs = await _getSubDoc(mainDoc.id);
+
+      for (var subDoc in subDocs.docs) {
+        final studentDetails = StudentDetailsModel.fromSnapshot(mainDoc, subDoc);
+        attendanceList.add(studentDetails);
+      }
+    });
+
+    await Future.wait(futures);
+
+    return attendanceList;
+  } catch (e) {
+    debugPrint('Error fetching attendance data: $e');
+    return [];
+  }
+}
 
   // // Get all students
   // Future<List<Map<String, dynamic>>> getAllStudents() async {
@@ -68,13 +82,7 @@ class FirestoreService extends GetxService {
       return [];
     }
 
-    final snapshot = await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
-      .orderBy('Name')
-      .startAt([query])
-      .endAt([query + '\uf8ff'])
-      .get();
-
-    return await getAttendanceForToday(snapshot);
+    return await getAttendanceForToday(query);
   }
 
   

@@ -117,6 +117,7 @@ class ScanController extends BaseController {
       'Date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
       'Time': DateFormat('HH:mm:ss').format(DateTime.now())
     };
+    
 
     try {
       await _service.createStudentAttendance(studentData, attendanceData);
