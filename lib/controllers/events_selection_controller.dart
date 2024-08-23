@@ -53,8 +53,10 @@ class EventsSelectionController extends BaseController {
                   ),
                 );
                 }))
-        : Center(
-            child: const CircularProgressIndicator(),
+        : Expanded(
+            child: Center(
+              child: const CircularProgressIndicator(),
+            )
           );
   }
 }

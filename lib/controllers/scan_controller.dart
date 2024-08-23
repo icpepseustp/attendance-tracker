@@ -3,6 +3,7 @@ import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
+import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -69,8 +70,14 @@ class ScanController extends BaseController {
           },
           child: AlertDialog(
             backgroundColor: AppColors.BGCOLOR,
-            title: const Text('QR Code Found'),
-            content: Text('Name: $name \nID Number: $idNumber \nCourse: $course'),
+            title: Text(
+              BaseController.selectedEvent.value,
+              style: AppTextStyles.qrDetectedDialog,
+            ),
+            content: Text(
+              'Name: $name \nID Number: $idNumber \nCourse: $course',
+              style: AppTextStyles.qrDetectedDialog
+              ),
             actions: [
               TextButton(
                 onPressed: () async {

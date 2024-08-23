@@ -33,15 +33,7 @@ class HistoryPage extends BaseView<HistoryController> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  StudentDetailsWidget(
-                    studentDetails: controller.studentDetails,
-                    controller: controller,
-                  ),
-                ],
-              ),
+              child: Obx(() => controller.handleHistoryDisplay())
             ),
           ),
         ],

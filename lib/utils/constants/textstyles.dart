@@ -39,4 +39,11 @@ class AppTextStyles{
       fontSize: 16,
     )
   );
+
+  static final TextStyle qrDetectedDialog = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: AppColors.NAVBARCOLOR,
+      fontSize: 16
+    )
+  );
 }

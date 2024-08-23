@@ -7,6 +7,7 @@ import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/widgets/qr_widget.dart';
+import 'package:attendance_tracker/widgets/student_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -83,41 +84,9 @@ class HistoryController extends BaseController {
   Widget handleHistoryDisplay() {
   return isLoading.value
       ? const Center(child: CircularProgressIndicator())
-      : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: studentDetails.map((student) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10.0), // Add bottom padding for spacing
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 70, // Ensure consistent width
-                    height: 70, // Ensure consistent height
-                    child: QrWidget(data: '${student.studentName} - ${student.studentId}'),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${student.studentName} - ${student.studentId}',
-                          style: AppTextStyles.studentDetails,
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          '${student.attendanceDate} \t ${student.attendanceTime}',
-                          style: AppTextStyles.DateAndTime,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        );
+      : StudentDetailsWidget(
+        studentDetails: studentDetails
+      );
 }
 
 

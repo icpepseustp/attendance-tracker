@@ -18,9 +18,21 @@ class FirestoreService extends GetxService {
   }
 
   // create a new student attendance
-  Future<void> createStudentAttendance(Map<String, dynamic> data, Map<String, dynamic> subData) async {
-    final docRef = await _createDoc(data);
-    await _createSubDoc(subData, docRef.id);
+   Future<void> createStudentAttendance(Map<String, dynamic> data, Map<String, dynamic> subData) async {
+    try {
+      final existingDocs = await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
+        .where(AppStrings.STUDENT_ID, isEqualTo: data[AppStrings.STUDENT_ID])
+        .limit(1)
+        .get();
+
+      final docId = existingDocs.docs.isNotEmpty
+        ? existingDocs.docs.first.id
+        : (await _createDoc(data)).id;
+
+      await _createSubDoc(subData, docId);
+    } catch (e) {
+      print('Error creating student attendance: $e');
+    }
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query, String studentDbCollection) async {

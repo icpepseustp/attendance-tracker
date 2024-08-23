@@ -8,16 +8,48 @@ import 'package:get/get.dart';
 
 class StudentDetailsWidget extends BaseWidget {
   final List<StudentDetailsModel> studentDetails;
-  final HistoryController controller;
 
   const StudentDetailsWidget({
     Key? key,
     required this.studentDetails,
-    required this.controller
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => controller.handleHistoryDisplay());
+    return  Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: studentDetails.map((student) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10.0), // Add bottom padding for spacing
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 70, // Ensure consistent width
+                    height: 70, // Ensure consistent height
+                    child: QrWidget(data: '${student.studentName} - ${student.studentId}'),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${student.studentName} - ${student.studentId}',
+                          style: AppTextStyles.studentDetails,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          '${student.attendanceDate} \t ${student.attendanceTime}',
+                          style: AppTextStyles.DateAndTime,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        );
   }
 }
