@@ -1,8 +1,11 @@
 class AppStrings {
-  static const MAINDBCOLLECTION = 'Students';
-  static const SUBDBCOLLECTION = 'Attendance';
-  static const STUDENT_NAME = 'Name';
-  static const STUDENT_ID = 'ID_number';
-  static const DATE = 'Date';
-  static const TIME = 'Time';
+  static const STUDENTSCOLLECTION = 'studentDetails';
+  static const ATTENDANCECOLLECTION = 'attendanceDetails';
+  static const EVENTSCOLLECTION = 'eventDetails';
+  static const STUDENTCOURSE = 'studentCourse';
+  static const STUDENT_NAME = 'studentName';
+  static const STUDENT_ID = 'studentId';
+  static const DATE = 'attendanceDate';
+  static const TIME = 'attendanceTime';
+  static const EVENTID = 'eventId';
 }

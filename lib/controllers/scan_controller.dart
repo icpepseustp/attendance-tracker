@@ -2,6 +2,7 @@ import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
+import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -108,14 +109,15 @@ class ScanController extends BaseController {
 
   Future<void> _addStudentAttendance(String name, String idNumber, String course) async {
     final Map<String, dynamic> studentData = {
-      'Name': name,
-      'ID_number': idNumber,
-      'Course': course,
+      AppStrings.STUDENT_NAME: name,
+      AppStrings.STUDENT_ID: idNumber,
+      AppStrings.STUDENTCOURSE: course,
     };
 
     final Map<String, dynamic> attendanceData = {
-      'Date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      'Time': DateFormat('HH:mm:ss').format(DateTime.now())
+      AppStrings.DATE: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      AppStrings.TIME: DateFormat('HH:mm:ss').format(DateTime.now()),
+      // AppStrings.EVENTID: 
     };
     
 

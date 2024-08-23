@@ -107,7 +107,7 @@ class HistoryController extends BaseController {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          '${student.date} \t ${student.time}',
+                          '${student.attendanceDate} \t ${student.attendanceTime}',
                           style: AppTextStyles.DateAndTime,
                         ),
                       ],

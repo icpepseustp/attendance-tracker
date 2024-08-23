@@ -10,36 +10,36 @@ class FirestoreService extends GetxService {
   final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Future<DocumentReference> _createDoc(Map<String, dynamic> docData) async {
-    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).add(docData); 
+    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).add(docData); 
   }
 
-  Future<DocumentReference> _createSubDoc(Map<String, dynamic> subDocData) async {
-    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).doc().collection(AppStrings.SUBDBCOLLECTION).add(subDocData);
+  Future<DocumentReference> _createSubDoc(Map<String, dynamic> subDocData, String docId) async {
+    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).collection(AppStrings.ATTENDANCECOLLECTION).add(subDocData);
   }
 
   // create a new student attendance
   Future<void> createStudentAttendance(Map<String, dynamic> data, Map<String, dynamic> subData) async {
-    await _createDoc(data);
-    await _createSubDoc(subData);
+    final docRef = await _createDoc(data);
+    await _createSubDoc(subData, docRef.id);
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query) async {
+  Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query, String studentDbCollection) async {
     if(query != null){
-      return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
-      .orderBy('Name')
+      return await _dbFirestore.collection(studentDbCollection)
+      .orderBy('studentName')
       .startAt([query])
       .endAt([query + '\uf8ff'])
       .get();
     }else {
-      return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).get();
+      return await _dbFirestore.collection(studentDbCollection).get();
     }
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> _getSubDoc(String uid)async{
-    return await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION)
+    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
       .doc(uid)
-      .collection(AppStrings.SUBDBCOLLECTION)
-      .where('Date', isEqualTo: today)
+      .collection(AppStrings.ATTENDANCECOLLECTION)
+      .where('attendanceDate', isEqualTo: today)
       .get();
   }
 
@@ -48,7 +48,7 @@ class FirestoreService extends GetxService {
 Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
   try {
 
-    final QuerySnapshot<Map<String, dynamic>> mainDocs = await _getMainDoc(query);
+    final QuerySnapshot<Map<String, dynamic>> mainDocs = await _getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
 
     List<StudentDetailsModel> attendanceList = [];
 
@@ -70,21 +70,31 @@ Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
   }
 }
 
-  // // Get all students
-  // Future<List<Map<String, dynamic>>> getAllStudents() async {
-  //   QuerySnapshot snapshot = await _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).get();
-  //   return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-  // }
-
-
   Future<List<StudentDetailsModel>> searchStudent(String query) async {
     if(query.isEmpty){
       return [];
     }
-
     return await getAttendanceForToday(query);
   }
 
+  Future<List<Map<dynamic, dynamic>>> getEvents() async {
+    try {
+      final eventsSnapshot = await _getMainDoc(null, AppStrings.EVENTSCOLLECTION);
+      
+      List<Map<dynamic, dynamic>> eventDescriptions = eventsSnapshot.docs.map((doc) {
+        final eventDescription = doc.data()['eventDescription'];
+        final eventId = doc.data()['eventId'];
+
+        return {eventDescription: eventId};
+
+      }).toList();
+
+      return eventDescriptions;
+    } catch (e) {
+      print('Error fetching event descriptions: $e');
+      return [];
+    }
+  }
   
   
 }

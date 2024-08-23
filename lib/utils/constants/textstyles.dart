@@ -25,4 +25,18 @@ class AppTextStyles{
     )
   );
 
+  static final TextStyle selectEventLabel = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: AppColors.NAVBARCOLOR,
+      fontSize: 20,
+      fontWeight: FontWeight.bold
+    )
+  );
+
+  static final TextStyle event = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    )
+  );
 }
