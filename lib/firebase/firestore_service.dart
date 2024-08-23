@@ -10,7 +10,7 @@ class FirestoreService extends GetxService {
   final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   // create a new student attendance
-  Future<void> createStudentAttendance(String studentId, Map<String, dynamic> studentData, Map<String, dynamic> attendanceData) async {
+  Future<void> createStudentAttendance(Map<String, dynamic> studentData, Map<String, dynamic> attendanceData) async {
     final DocumentReference studentRef = _dbFirestore.collection(AppStrings.MAINDBCOLLECTION).doc();
 
     await _dbFirestore.runTransaction((transaction) async {

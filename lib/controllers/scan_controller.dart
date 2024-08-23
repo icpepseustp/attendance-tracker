@@ -119,7 +119,7 @@ class ScanController extends BaseController {
     };
 
     try {
-      await _service.createStudentAttendance(idNumber, studentData, attendanceData);
+      await _service.createStudentAttendance(studentData, attendanceData);
       debugPrint('Attendance recorded');
     } catch (e) {
       debugPrint('Error adding attendance record: $e');

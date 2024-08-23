@@ -42,6 +42,7 @@ class HistoryController extends BaseController {
   void handleSearchTapped() async{
     isSearching.value = !isSearching.value;
     if(isSearching.value == false){
+      searchController.text = '';
       isLoading.value = true;
       await _fetchAttendanceForToday();
     }
@@ -69,7 +70,6 @@ class HistoryController extends BaseController {
 
   Future<void> _fetchAttendanceForToday() async {
     try {
-      isLoading.value = true;
       final students = await _service.getAttendanceForToday(null);
       studentDetails.clear();
       studentDetails.addAll(students);
@@ -184,5 +184,6 @@ class HistoryController extends BaseController {
   void onClose(){
     searchController.dispose();
     _debounce?.cancel();
+    super.onClose();
   }
 }
