@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:attendance_tracker/models/selected_option_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BaseController extends GetxController {
 
-  static final selectedEvent = ''.obs;
+  static final Rx<SelectedOptionModel> selectedEvent = SelectedOptionModel(description: '', id: '').obs;
+  static final Rx<SelectedOptionModel> selectedUsage = SelectedOptionModel(description: '', id: '').obs;
 
   @override
   onInit() {

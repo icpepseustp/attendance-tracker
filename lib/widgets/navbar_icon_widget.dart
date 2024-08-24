@@ -46,7 +46,7 @@ class NavbarIconWidget extends BaseWidget {
         const SizedBox(height: 5),
         Text(
           label,
-          style: AppTextStyles.navIconLabelPoppins
+          style: AppTextStyles.NAVICONLABELPOPPINS
         ),
       ],
     ),

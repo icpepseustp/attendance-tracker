@@ -30,7 +30,7 @@ class SplashController extends BaseController {
 
   void _launchEvents() {
       debugPrint("SplashController Timer Stops");
-      Get.offAndToNamed(Routes.EVENTS);
+      Get.offAndToNamed(Routes.USAGE);
       _timer.cancel();
   }
 

@@ -4,28 +4,28 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTextStyles{
   
-  static final TextStyle navIconLabelPoppins = GoogleFonts.poppins(
+  static final TextStyle NAVICONLABELPOPPINS = GoogleFonts.poppins(
     textStyle: const TextStyle(
       fontSize: 16,
       color: AppColors.ICONCOLOR
     )
   );
 
-  static final TextStyle studentDetails = GoogleFonts.poppins(
+  static final TextStyle STUDENTDETAILS = GoogleFonts.poppins(
     textStyle: const TextStyle(
       fontSize: 17,
       color: AppColors.HISTORYICONCOLOR
     )
   );
 
-  static final TextStyle DateAndTime = GoogleFonts.poppins(
+  static final TextStyle DATEANDTIME = GoogleFonts.poppins(
     textStyle: const TextStyle(
       color: AppColors.HISTORYICONCOLOR,
       fontSize: 16,
     )
   );
 
-  static final TextStyle selectEventLabel = GoogleFonts.poppins(
+  static final TextStyle SELECTEVENTLABEL = GoogleFonts.poppins(
     textStyle: const TextStyle(
       color: AppColors.NAVBARCOLOR,
       fontSize: 20,
@@ -33,7 +33,7 @@ class AppTextStyles{
     )
   );
 
-  static final TextStyle event = GoogleFonts.poppins(
+  static final TextStyle BUTTONTEXT = GoogleFonts.poppins(
     textStyle: const TextStyle(
       color: Colors.white,
       fontSize: 16,
@@ -44,6 +44,13 @@ class AppTextStyles{
     textStyle: const TextStyle(
       color: AppColors.NAVBARCOLOR,
       fontSize: 16
+    )
+  );
+
+  static final TextStyle settingsTextStyle = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: AppColors.NAVBARCOLOR,
+      fontSize: 19
     )
   );
 }

@@ -26,7 +26,7 @@ class EventsSelectionPage extends BaseView {
             children: [
               Text(
                 'Select current event',
-                style: AppTextStyles.selectEventLabel,
+                style: AppTextStyles.SELECTEVENTLABEL,
               ),
               Obx(() => controller.handleEventsLoaded())
             ],

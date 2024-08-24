@@ -36,12 +36,12 @@ class StudentDetailsWidget extends BaseWidget {
                       children: [
                         Text(
                           '${student.studentName} - ${student.studentId}',
-                          style: AppTextStyles.studentDetails,
+                          style: AppTextStyles.STUDENTDETAILS,
                         ),
                         const SizedBox(height: 5),
                         Text(
                           '${student.attendanceDate} \t ${student.attendanceTime}',
-                          style: AppTextStyles.DateAndTime,
+                          style: AppTextStyles.DATEANDTIME,
                         ),
                       ],
                     ),

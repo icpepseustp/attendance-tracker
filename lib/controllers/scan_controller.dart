@@ -47,15 +47,14 @@ class ScanController extends BaseController {
     
     if(stringParts.length < 3) {
       debugPrint('Invalid QR code content: $code');
-      startScanning();
+      startScanning();  
       return;
     }
 
-    String name = stringParts.sublist(0, stringParts.length - 2).join(' ');
-    String idNumber = stringParts[stringParts.length - 2];
-    String course = stringParts.last;
+    String name = stringParts.sublist(1, stringParts.length - 3).join(' ');
+    String idNumber = stringParts.last;
 
-    _addStudentAttendance(name, idNumber, course);
+    _addStudentAttendance(name, idNumber);
     
     showDialog(
       context: context,
@@ -71,11 +70,11 @@ class ScanController extends BaseController {
           child: AlertDialog(
             backgroundColor: AppColors.BGCOLOR,
             title: Text(
-              BaseController.selectedEvent.value,
+              BaseController.selectedEvent.value.description,
               style: AppTextStyles.qrDetectedDialog,
             ),
             content: Text(
-              'Name: $name \nID Number: $idNumber \nCourse: $course',
+              'Name: $name \nID Number: $idNumber',
               style: AppTextStyles.qrDetectedDialog
               ),
             actions: [
@@ -114,20 +113,18 @@ class ScanController extends BaseController {
     }
   }
 
-  Future<void> _addStudentAttendance(String name, String idNumber, String course) async {
+  Future<void> _addStudentAttendance(String name, String idNumber) async {
     final Map<String, dynamic> studentData = {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: idNumber,
-      AppStrings.STUDENTCOURSE: course,
     };
 
     final Map<String, dynamic> attendanceData = {
       AppStrings.DATE: DateFormat('yyyy-MM-dd').format(DateTime.now()),
       AppStrings.TIME: DateFormat('HH:mm:ss').format(DateTime.now()),
-      // AppStrings.EVENTID: 
+      AppStrings.EVENTID: BaseController.selectedEvent.value.id
     };
     
-
     try {
       await _service.createStudentAttendance(studentData, attendanceData);
       debugPrint('Attendance recorded');

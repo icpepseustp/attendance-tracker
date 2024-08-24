@@ -1,8 +1,10 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
+import 'package:attendance_tracker/models/selected_option_model.dart';
 import 'package:attendance_tracker/routes/app_pages.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
+import 'package:attendance_tracker/widgets/selection_option_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,8 +21,11 @@ class EventsSelectionController extends BaseController {
     eventsList.addAll(events);
   }
 
-  void handleEventClicked(String event){
-    BaseController.selectedEvent.value = event;
+  void handleEventClicked(String event, String eventId){
+    BaseController.selectedEvent.value = SelectedOptionModel(
+      description: event, 
+      id: eventId
+    );
     Get.offAndToNamed(Routes.SCAN);
   }
 
@@ -32,25 +37,14 @@ class EventsSelectionController extends BaseController {
                 itemBuilder: (context, index) {
                   final event = eventsList[index];
                   final eventDescription = event.keys.first;
+                  final eventId = event[eventDescription];
 
                   return Container(
                   margin: const EdgeInsets.only(bottom: 25),
-                  child: ElevatedButton(
-                    onPressed: () => handleEventClicked(eventDescription),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.NAVBARCOLOR,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 25, horizontal: 10),
-                    ),
-                    child: Text(
-                      eventDescription,
-                      style: AppTextStyles.event,
-                      textAlign: TextAlign.center
-                    ),
-                  ),
+                  child: SelectionOptionWidget(
+                    optionDescription: eventDescription,
+                    optionId: eventId, 
+                    onPressed: (eventDescription, eventId) => handleEventClicked(eventDescription, eventId))
                 );
                 }))
         : Expanded(
