@@ -5,6 +5,7 @@ import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/models/student_details_model.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
+import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/widgets/qr_widget.dart';
 import 'package:attendance_tracker/widgets/student_details_widget.dart';
@@ -30,7 +31,7 @@ class HistoryController extends BaseController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    await _fetchAttendanceForToday();
+    getHistory();
 
     searchController.addListener(() {
       if(_debounce?.isActive ?? false) _debounce!.cancel();
@@ -46,6 +47,14 @@ class HistoryController extends BaseController {
       searchController.text = '';
       isLoading.value = true;
       await _fetchAttendanceForToday();
+    }
+  }
+
+  void getHistory() async {
+    if(BaseController.selectedUsage.value.description == AppStrings.EVENTATTENDANCE){
+      await _fetchAttendanceForToday();
+    }else {
+      isLoading.value = false;
     }
   }
 
@@ -80,6 +89,8 @@ class HistoryController extends BaseController {
       debugPrint('Error fetching attendance data: $e');
     }
   }
+
+  
 
   Widget handleHistoryDisplay() {
   return isLoading.value

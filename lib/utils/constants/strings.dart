@@ -5,7 +5,12 @@ class AppStrings {
   static const STUDENTCOURSE = 'studentCourse';
   static const STUDENT_NAME = 'studentName';
   static const STUDENT_ID = 'studentId';
-  static const DATE = 'attendanceDate';
-  static const TIME = 'attendanceTime';
+  static const DATE = 'date';
+  static const TIME = 'time';
+  static const EVENTDESCRIPTION = 'eventDescription';
   static const EVENTID = 'eventId';
+  static const EVENTATTENDANCE = 'Event Attendance';
+  static const BOOKLET = 'Booklet';
+  static const BORROWCOMPONENTS = 'Borrow Components';
+  static const BORROWSTATUS = 'borrowStatus';
 }

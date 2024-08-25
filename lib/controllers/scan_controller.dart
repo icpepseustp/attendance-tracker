@@ -13,6 +13,7 @@ class ScanController extends BaseController {
   ScanController(this._service);
 
   final FirestoreService _service;
+  var borrowStatus = false.obs;
   var isScanning = true.obs;
   var overlaySize = 0.7.obs;
   var isTorchEnabled = false.obs;
@@ -40,7 +41,7 @@ class ScanController extends BaseController {
     overlaySize.value = value;
   }
 
-  void handleQrCode(BuildContext context, String code) {
+  void handleQrCode(BuildContext context, String code) async {
 
     // Split the QR code by spaces
     List<String> stringParts = code.split(RegExp(r'\s+'));
@@ -53,8 +54,8 @@ class ScanController extends BaseController {
 
     String name = stringParts.sublist(1, stringParts.length - 3).join(' ');
     String idNumber = stringParts.last;
-
-    _addStudentAttendance(name, idNumber);
+    final bool isBorrowing = BaseController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS ? true : false;  
+    await _editStudent(name, idNumber, isBorrowing);
     
     showDialog(
       context: context,
@@ -113,10 +114,15 @@ class ScanController extends BaseController {
     }
   }
 
-  Future<void> _addStudentAttendance(String name, String idNumber) async {
+  Future<void> _editStudent(String name, String idNumber, bool isBorrowing) async {
+    if(isBorrowing){
+      borrowStatus.value = !borrowStatus.value;  
+    }
+
     final Map<String, dynamic> studentData = {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: idNumber,
+      AppStrings.BORROWSTATUS: isBorrowing
     };
 
     final Map<String, dynamic> attendanceData = {
@@ -124,17 +130,21 @@ class ScanController extends BaseController {
       AppStrings.TIME: DateFormat('HH:mm:ss').format(DateTime.now()),
       AppStrings.EVENTID: BaseController.selectedEvent.value.id
     };
+
+    final Map<String, dynamic> updateData = {
+      AppStrings.BORROWSTATUS: borrowStatus.value
+    };
+
     
     try {
-      await _service.createStudentAttendance(studentData, attendanceData);
+      await _service.createStudent(studentData, attendanceData, updateData);
       debugPrint('Attendance recorded');
     } catch (e) {
       debugPrint('Error adding attendance record: $e');
       showSnackBar('Error', 'Failed to add attendance record', Colors.red);
     }
-
-
   }
+
 
   
 

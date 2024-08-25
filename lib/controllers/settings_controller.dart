@@ -4,6 +4,16 @@ import 'package:get/get.dart';
 
 class SettingsController extends BaseController {
   void handleBack() {
-    Get.offAllNamed(Routes.EVENTS);
+    BaseController.selectedEvent.update((model) {
+      model?.description = '';
+      model?.id = '';
+    });
+
+    BaseController.selectedUsage.update((model) {
+      model?.description = '';
+      model?.id = '';
+    });
+
+    Get.offAllNamed(Routes.USAGE);
   }
 }

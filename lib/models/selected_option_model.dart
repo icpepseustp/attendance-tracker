@@ -1,5 +1,5 @@
 class SelectedOptionModel {
-  final String description, id;
+  String description, id;
 
   SelectedOptionModel({
     required this.description,

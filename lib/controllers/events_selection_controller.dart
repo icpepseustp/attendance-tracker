@@ -26,7 +26,7 @@ class EventsSelectionController extends BaseController {
       description: event, 
       id: eventId
     );
-    Get.offAndToNamed(Routes.SCAN);
+    Get.offAllNamed(Routes.SCAN);
   }
 
   Widget handleEventsLoaded() {
