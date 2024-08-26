@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:attendance_tracker/models/selected_option_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class BaseController extends GetxController {
 
   static final Rx<SelectedOptionModel> selectedEvent = SelectedOptionModel(description: '', id: '').obs;
   static final Rx<SelectedOptionModel> selectedUsage = SelectedOptionModel(description: '', id: '').obs;
+
 
   @override
   onInit() {
@@ -19,6 +21,13 @@ class BaseController extends GetxController {
         (() => Get.snackbar(title, message)));
   }
   
+  String getCurrentDate(){
+    return DateFormat('yyyy-MM-dd').format(DateTime.now());
+  }
+
+  String getCurrentTime(){
+    return DateFormat('HH:mm:ss').format(DateTime.now());
+  }
 
   void showSnackBar(String title, String message, Color backgroundColor) {
     Get.snackbar(

@@ -46,13 +46,13 @@ class HistoryController extends BaseController {
     if(isSearching.value == false){
       searchController.text = '';
       isLoading.value = true;
-      await _fetchAttendanceForToday();
+      await _fetchStudentDetails();
     }
   }
 
   void getHistory() async {
     if(BaseController.selectedUsage.value.description == AppStrings.EVENTATTENDANCE){
-      await _fetchAttendanceForToday();
+      await _fetchStudentDetails();
     }else {
       isLoading.value = false;
     }
@@ -62,7 +62,7 @@ class HistoryController extends BaseController {
     debugPrint('$query');
     if (query.isEmpty) {
       // If the query is empty, fetch all students
-      await _fetchAttendanceForToday();
+      await _fetchStudentDetails();
       return;
     }
 
@@ -78,7 +78,7 @@ class HistoryController extends BaseController {
     } 
   }
 
-  Future<void> _fetchAttendanceForToday() async {
+  Future<void> _fetchStudentDetails() async {
     try {
       final students = await _service.getAttendanceForToday(null);
       studentDetails.clear();

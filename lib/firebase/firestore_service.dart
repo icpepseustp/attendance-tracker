@@ -11,114 +11,148 @@ class FirestoreService extends GetxService {
   final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Future<DocumentReference> _createDoc(Map<String, dynamic> docData) async {
-    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).add(docData); 
+    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).add(docData);
   }
 
-  Future<DocumentReference> _createSubDoc(Map<String, dynamic> subDocData, String docId) async {
-    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).collection(AppStrings.ATTENDANCECOLLECTION).add(subDocData);
+  Future<DocumentReference> _createSubDoc(Map<String, dynamic> subDocData, String docId, String collectionPath) async {
+    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).collection(collectionPath).add(subDocData);
   }
 
-  // create a new student attendance
-   Future<void> createStudent(Map<String, dynamic> data, Map<String, dynamic> subData, Map<String, dynamic> updateData) async {
+  Future<void> createStudent(
+    Map<String, dynamic> data, 
+    Map<String, dynamic> subData, 
+    Map<String, dynamic> updateData, 
+    Map<String, dynamic> updateDetails
+  ) async {
     try {
       final existingDocs = await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
-        .where(AppStrings.STUDENT_ID, isEqualTo: data[AppStrings.STUDENT_ID])
-        .limit(1)
-        .get();
+          .where(AppStrings.STUDENT_ID, isEqualTo: data[AppStrings.STUDENT_ID])
+          .limit(1)
+          .get();
 
-      final docId = existingDocs.docs.isNotEmpty
-        ? existingDocs.docs.first.id
-        : (await _createDoc(data)).id;
-      
+      String docId;
+      if (existingDocs.docs.isNotEmpty) {
+        docId = existingDocs.docs.first.id;
 
-
-      if(BaseController.selectedUsage.value.description == AppStrings.EVENTATTENDANCE){
-        await _createSubDoc(subData, docId);
-      } else if(BaseController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS){
-        await _update(docId, updateData);
+        if (BaseController.selectedUsage.value.description == AppStrings.BOOKLET) {
+          final remainingBooklet = existingDocs.docs.first.get(AppStrings.CLAIMABLEBOOKLET);
+          if (remainingBooklet > 0) {
+            await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId)
+              .update({AppStrings.CLAIMABLEBOOKLET: remainingBooklet - 1});
+          }
+        }
+      } else {
+        data[AppStrings.CLAIMABLEBOOKLET] = 4;
+        final docRef = await _createDoc(data);
+        docId = docRef.id;
       }
 
+      switch (BaseController.selectedUsage.value.description) {
+        case AppStrings.EVENTATTENDANCE:
+          await _createSubDoc(subData, docId, AppStrings.ATTENDANCECOLLECTION);
+          break;
+        case AppStrings.BORROWCOMPONENTS:
+          await _editBorrowComponent(docId, updateData, updateDetails);
+          break;
+      }
     } catch (e) {
-      print('Error creating student attendance: $e');
+      debugPrint('Error creating student attendance: $e');
     }
   }
-
 
   Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query, String studentDbCollection) async {
-    if(query != null){
-      return await _dbFirestore.collection(studentDbCollection)
-      .orderBy(AppStrings.STUDENT_NAME)
-      .startAt([query])
-      .endAt([query + '\uf8ff'])
-      .get();
-    }else {
-      return await _dbFirestore.collection(studentDbCollection).get();
+    final collectionRef = _dbFirestore.collection(studentDbCollection);
+    if (query != null) {
+      return await collectionRef.orderBy(AppStrings.STUDENT_NAME)
+          .startAt([query])
+          .endAt([query + '\uf8ff'])
+          .get();
+    } else {
+      return await collectionRef.get();
     }
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> _getSubDoc(String uid)async{
+  Future<QuerySnapshot<Map<String, dynamic>>> _getSubDoc(String id) async {
     return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
-      .doc(uid)
-      .collection(AppStrings.ATTENDANCECOLLECTION)
-      .where(AppStrings.DATE, isEqualTo: today)
-      .get();
+        .doc(id)
+        .collection(AppStrings.ATTENDANCECOLLECTION)
+        .where(AppStrings.DATE, isEqualTo: today)
+        .get();
   }
 
+  Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
+    try {
+      final mainDocs = await _getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
+      List<StudentDetailsModel> attendanceList = [];
 
-// Get attendance for today
-Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
-  try {
+      await Future.wait(mainDocs.docs.map((mainDoc) async {
+        final subDocs = await _getSubDoc(mainDoc.id);
+        attendanceList.addAll(subDocs.docs.map((subDoc) => StudentDetailsModel.fromSnapshot(mainDoc, subDoc)));
+      }));
 
-    final QuerySnapshot<Map<String, dynamic>> mainDocs = await _getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
-
-    List<StudentDetailsModel> attendanceList = [];
-
-    final futures = mainDocs.docs.map((mainDoc) async {
-      final QuerySnapshot<Map<String, dynamic>> subDocs = await _getSubDoc(mainDoc.id);
-
-      for (var subDoc in subDocs.docs) {
-        final studentDetails = StudentDetailsModel.fromSnapshot(mainDoc, subDoc);
-        attendanceList.add(studentDetails);
-      }
-    });
-
-    await Future.wait(futures);
-
-    return attendanceList;
-  } catch (e) {
-    debugPrint('Error fetching attendance data: $e');
-    return [];
-  }
-}
-
-  Future<List<StudentDetailsModel>> searchStudent(String query) async {
-    if(query.isEmpty){
+      return attendanceList;
+    } catch (e) {
+      debugPrint('Error fetching attendance data: $e');
       return [];
     }
-    return await getAttendanceForToday(query);
+  }
+
+  Future<Map<String, dynamic>?> getStudentById(String studentId) async {
+    try {
+      final querySnapshot = await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
+          .where(AppStrings.STUDENT_ID, isEqualTo: studentId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return querySnapshot.docs.first.data();
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching student by ID: $e');
+      return null;
+    }
+  }
+
+  Future<List<StudentDetailsModel>> searchStudent(String query) async {
+    return query.isEmpty ? [] : await getAttendanceForToday(query);
   }
 
   Future<List<Map<dynamic, dynamic>>> getEvents() async {
     try {
       final eventsSnapshot = await _getMainDoc(null, AppStrings.EVENTSCOLLECTION);
-      
-      List<Map<dynamic, dynamic>> eventDescriptions = eventsSnapshot.docs.map((doc) {
-        final eventDescription = doc.data()[AppStrings.EVENTDESCRIPTION];
-        final eventId = doc.data()[AppStrings.EVENTID];
-
-        return {eventDescription: eventId};
-
+      return eventsSnapshot.docs.map((doc) {
+        return {
+          doc.get(AppStrings.EVENTDESCRIPTION): doc.get(AppStrings.EVENTID),
+        };
       }).toList();
-
-      return eventDescriptions;
     } catch (e) {
-      print('Error fetching event descriptions: $e');
+      debugPrint('Error fetching event descriptions: $e');
       return [];
     }
   }
-  
-  Future<void> _update(String docId, Map<String, dynamic> updateData) async {
-    return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).update(updateData);
-  }
 
+  Future<void> _editBorrowComponent(String docId, Map<String, dynamic> updateData, Map<String, dynamic> updateDetails) async {
+    try {
+      await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).update(updateData);
+
+      final subDocs = await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
+          .doc(docId)
+          .collection(AppStrings.BORROWDETAILS)
+          .where(AppStrings.DATERETURNED, isEqualTo: '')
+          .limit(1)
+          .get();
+
+      if (subDocs.docs.isNotEmpty) {
+        await subDocs.docs.first.reference.update({
+          AppStrings.DATERETURNED: BaseController().getCurrentDate(),
+          AppStrings.TIMERETURNED: BaseController().getCurrentTime(),
+        });
+      } else {
+        await _createSubDoc(updateDetails, docId, AppStrings.BORROWDETAILS);
+      }
+    } catch (e) {
+      debugPrint('Error updating borrow component: $e');
+    }
+  }
 }

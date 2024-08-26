@@ -13,101 +13,109 @@ class ScanController extends BaseController {
   ScanController(this._service);
 
   final FirestoreService _service;
-  var borrowStatus = false.obs;
+  final selectedEventDescription = BaseController.selectedEvent.value.description;
+  final selectedUsageDescription = BaseController.selectedUsage.value.description;
+
+  var borrowStatus = true.obs;
   var isScanning = true.obs;
   var overlaySize = 0.7.obs;
   var isTorchEnabled = false.obs;
   final MobileScannerController mobileScannerController = MobileScannerController();
 
-  String getTorchIcon(){
-    return isTorchEnabled.value? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
-  }
+  String getTorchIcon() => isTorchEnabled.value ? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
 
-  void toggleTorch(){
+  void toggleTorch() {
     debugPrint('Torch clicked');
     mobileScannerController.toggleTorch();
     isTorchEnabled.value = !isTorchEnabled.value;
   }
 
-  void stopScanning() {
-    isScanning.value = false; // Set to false to stop scanning
-  }
+  void stopScanning() => isScanning.value = false;
 
-  void startScanning() {
-    isScanning.value = true; // Set to true to start scanning
-  }
+  void startScanning() => isScanning.value = true;
 
-  void handleDisplaySizeChange(double value){
-    overlaySize.value = value;
-  }
+  void handleDisplaySizeChange(double value) => overlaySize.value = value;
 
   void handleQrCode(BuildContext context, String code) async {
-
-    // Split the QR code by spaces
-    List<String> stringParts = code.split(RegExp(r'\s+'));
+    final stringParts = code.split(RegExp(r'\s+'));
     
-    if(stringParts.length < 3) {
+    if (stringParts.length < 3) {
       debugPrint('Invalid QR code content: $code');
-      startScanning();  
+      startScanning();
       return;
     }
 
-    String name = stringParts.sublist(1, stringParts.length - 3).join(' ');
-    String idNumber = stringParts.last;
-    final bool isBorrowing = BaseController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS ? true : false;  
-    await _editStudent(name, idNumber, isBorrowing);
-    
+    final name = stringParts.sublist(1, stringParts.length - 3).join(' ');
+    final studentId = stringParts.last;
+    final isBorrowing = selectedUsageDescription == AppStrings.BORROWCOMPONENTS;
+
+    await _editStudent(name, studentId, isBorrowing);
+
+    if (selectedUsageDescription == AppStrings.EVENTATTENDANCE) {
+      _showQrDialog(context, name, studentId, null, selectedEventDescription);
+    } else if (selectedUsageDescription == AppStrings.BOOKLET) {
+      final claimableBooklets = await _fetchClaimableBooklets(studentId);
+      final message = claimableBooklets == '0'
+          ? 'No more booklets left'
+          : 'Claimable Booklets: $claimableBooklets';
+      _showQrDialog(context, name, studentId, claimableBooklets, message);
+    } else {
+      final message = !borrowStatus.value ? 'Currently Borrowing' : 'Component returned';
+      _showQrDialog(context, name, studentId, null, message);
+    }
+  }
+
+  void _showQrDialog(
+      BuildContext context,
+      String name,
+      String studentId,
+      String? remainingBooklets,
+      String titleString) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allows the user to dismiss the dialog by tapping outside of it
-      builder: (context) {
-        // Set up a listener for when the dialog is dismissed
-        return WillPopScope(
-          onWillPop: () async {
-            // This will be triggered when the dialog is dismissed by tapping outside
-            await Future.delayed(const Duration(milliseconds: 500));
-            return true; // Allow the pop (dismissal)
-          },
-          child: AlertDialog(
-            backgroundColor: AppColors.BGCOLOR,
-            title: Text(
-              BaseController.selectedEvent.value.description,
-              style: AppTextStyles.qrDetectedDialog,
+      barrierDismissible: true,
+      builder: (context) => WillPopScope(
+        onWillPop: () async {
+          await Future.delayed(const Duration(milliseconds: 500));
+          return true;
+        },
+        child: AlertDialog(
+          backgroundColor: AppColors.BGCOLOR,
+          title: Text(titleString, style: AppTextStyles.qrDetectedDialog),
+          content: Text('Name: $name \nID Number: $studentId', style: AppTextStyles.qrDetectedDialog),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await Future.delayed(const Duration(milliseconds: 500));
+                startScanning();
+              },
+              child: const Text('OK'),
             ),
-            content: Text(
-              'Name: $name \nID Number: $idNumber',
-              style: AppTextStyles.qrDetectedDialog
-              ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop(); // Close the dialog
-                  await Future.delayed(const Duration(milliseconds: 500));
-                  startScanning(); // Resume scanning after the dialog is closed
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     ).then((_) async {
-      // This will be called when the dialog is dismissed (either by pressing OK or tapping outside)
       await Future.delayed(const Duration(milliseconds: 500));
-      startScanning(); // Resume scanning after the dialog is dismissed
+      startScanning();
     });
   }
-  
+
+  Future<String> _fetchClaimableBooklets(String studentId) async {
+    try {
+      final studentData = await _service.getStudentById(studentId);
+      return studentData?[AppStrings.CLAIMABLEBOOKLET]?.toString() ?? '0';
+    } catch (e) {
+      debugPrint('Error fetching remaining booklets: $e');
+      return '';
+    }
+  }
 
   Future<void> onQrDetect(BuildContext context, BarcodeCapture capture) async {
     if (isScanning.value) {
-      // Pause scanning
       stopScanning();
-
-      final List<Barcode> barcodes = capture.barcodes;
-      final Barcode firstBarcode = barcodes.first;
-      if (firstBarcode.rawValue != null) {
-        final String code = firstBarcode.rawValue!;
+      final code = capture.barcodes.first.rawValue;
+      if (code != null) {
         debugPrint('code: $code');
         handleQrCode(context, code);
       }
@@ -115,29 +123,45 @@ class ScanController extends BaseController {
   }
 
   Future<void> _editStudent(String name, String idNumber, bool isBorrowing) async {
-    if(isBorrowing){
-      borrowStatus.value = !borrowStatus.value;  
-    }
-
-    final Map<String, dynamic> studentData = {
+    final now = DateTime.now();
+    final studentData = {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: idNumber,
-      AppStrings.BORROWSTATUS: isBorrowing
+      AppStrings.BORROWSTATUS: isBorrowing,
     };
 
-    final Map<String, dynamic> attendanceData = {
-      AppStrings.DATE: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      AppStrings.TIME: DateFormat('HH:mm:ss').format(DateTime.now()),
-      AppStrings.EVENTID: BaseController.selectedEvent.value.id
+    final attendanceData = {
+      AppStrings.DATE: _formatDate(now),
+      AppStrings.TIME: _formatTime(now),
+      AppStrings.EVENTID: BaseController.selectedEvent.value.id,
     };
 
-    final Map<String, dynamic> updateData = {
-      AppStrings.BORROWSTATUS: borrowStatus.value
+    final updateData = {
+      AppStrings.BORROWSTATUS: borrowStatus.value,
     };
 
-    
+    final updateDataDetails = {
+      AppStrings.DATE: _formatDate(now),
+      AppStrings.TIME: _formatTime(now),
+      AppStrings.DATERETURNED: '',
+      AppStrings.TIMERETURNED: '',
+    };
+
+    if (isBorrowing) {
+      borrowStatus.value = !borrowStatus.value;
+      if (borrowStatus.value) {
+        updateDataDetails[AppStrings.DATERETURNED] = _formatDate(now);
+        updateDataDetails[AppStrings.TIMERETURNED] = _formatTime(now);
+      }
+    }
+
     try {
-      await _service.createStudent(studentData, attendanceData, updateData);
+      await _service.createStudent(
+        studentData,
+        attendanceData,
+        updateData,
+        updateDataDetails,
+      );
       debugPrint('Attendance recorded');
     } catch (e) {
       debugPrint('Error adding attendance record: $e');
@@ -145,8 +169,13 @@ class ScanController extends BaseController {
     }
   }
 
+  String _formatDate(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
 
-  
+  String _formatTime(DateTime time) => DateFormat('HH:mm:ss').format(time);
 
-
+  @override
+  void onClose() {
+    isTorchEnabled.value = false;
+    super.onClose();
+  }
 }
