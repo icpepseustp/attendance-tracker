@@ -1,4 +1,7 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/controllers/booklet_controller.dart';
+import 'package:attendance_tracker/controllers/borrow_controller.dart';
+import 'package:attendance_tracker/controllers/event_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
@@ -10,19 +13,34 @@ import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanController extends BaseController {
-  ScanController(this._service);
+  ScanController(this._service)
+      : _eventController = EventController(_service),
+        _bookletController = BookletController(_service),
+        _borrowController = BorrowController(_service);
 
+  // get the firestore service
   final FirestoreService _service;
-  final selectedEventDescription = BaseController.selectedEvent.value.description;
-  final selectedUsageDescription = BaseController.selectedUsage.value.description;
 
-  var borrowStatus = true.obs;
+  // initialize the controller for each usage
+  final EventController _eventController;
+  final BookletController _bookletController;
+  final BorrowController _borrowController;
+
+  // initialize the scanning status of the scanner
   var isScanning = true.obs;
-  var overlaySize = 0.7.obs;
-  var isTorchEnabled = false.obs;
-  final MobileScannerController mobileScannerController = MobileScannerController();
 
-  String getTorchIcon() => isTorchEnabled.value ? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
+  // set the overlaysize of the scanner painter overlay
+  var overlaySize = 0.7.obs;
+
+  // initialize the flash status of the camera
+  var isTorchEnabled = false.obs;
+
+  // get the controller for the mobile scanner
+  final MobileScannerController mobileScannerController =
+      MobileScannerController();
+
+  // get the torch icon when it is enabled or disabled
+  String getTorchIcon() =>isTorchEnabled.value ? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
 
   void toggleTorch() {
     debugPrint('Torch clicked');
@@ -30,50 +48,55 @@ class ScanController extends BaseController {
     isTorchEnabled.value = !isTorchEnabled.value;
   }
 
-  void stopScanning() => isScanning.value = false;
+  void _stopScanning() => isScanning.value = false;
 
-  void startScanning() => isScanning.value = true;
+  void _startScanning() => isScanning.value = true;
 
+  // function for handling the painter size when the user wants to adjust it
   void handleDisplaySizeChange(double value) => overlaySize.value = value;
 
-  void handleQrCode(BuildContext context, String code) async {
+  void _handleQrCode(BuildContext context, String code) async {
     final stringParts = code.split(RegExp(r'\s+'));
-    
+
     if (stringParts.length < 3) {
       debugPrint('Invalid QR code content: $code');
-      startScanning();
+      _startScanning();
       return;
     }
 
     final name = stringParts.sublist(1, stringParts.length - 3).join(' ');
     final studentId = stringParts.last;
-    final isBorrowing = selectedUsageDescription == AppStrings.BORROWCOMPONENTS;
 
-    await _editStudent(name, studentId, isBorrowing);
+    // Determine the message and remaining booklets based on usage type
+    String? remainingBooklets;
+    String message;
+    
 
-    if (selectedUsageDescription == AppStrings.EVENTATTENDANCE) {
-      _showQrDialog(context, name, studentId, null, selectedEventDescription);
-    } else if (selectedUsageDescription == AppStrings.BOOKLET) {
-      final claimableBooklets = await _fetchClaimableBooklets(studentId);
-      final message = claimableBooklets == '0'
+    if (isEventAttendance) {
+      message = BaseController.selectedEvent.value.description;
+
+      await _eventController.recordEventAttendance(name, studentId);
+    } else if (isBooklet) {
+      remainingBooklets = await _bookletController.fetchClaimableBooklets(studentId);
+      message = remainingBooklets == '0'
           ? 'No more booklets left'
-          : 'Claimable Booklets: $claimableBooklets';
-      _showQrDialog(context, name, studentId, claimableBooklets, message);
+          : 'Claimable Booklets: $remainingBooklets';
     } else {
-      final message = !borrowStatus.value ? 'Currently Borrowing' : 'Component returned';
-      _showQrDialog(context, name, studentId, null, message);
+      _borrowController.borrowStatus.value = await _borrowController.getCurrentBorrowStatus(studentId);
+      message = !_borrowController.borrowStatus.value
+          ? 'Currently Borrowing'
+          : 'Component returned';
     }
+
+    // Show the QR dialog with the appropriate details
+    _showQrDialog(context, name, studentId, remainingBooklets, message);
   }
 
-  void _showQrDialog(
-      BuildContext context,
-      String name,
-      String studentId,
-      String? remainingBooklets,
-      String titleString) {
+  void _showQrDialog(BuildContext context, String name, String studentId,
+      String? remainingBooklets, String titleString) {
     showDialog(
       context: context,
-      barrierDismissible: true,
+      barrierDismissible: false,
       builder: (context) => WillPopScope(
         onWillPop: () async {
           await Future.delayed(const Duration(milliseconds: 500));
@@ -81,101 +104,68 @@ class ScanController extends BaseController {
         },
         child: AlertDialog(
           backgroundColor: AppColors.BGCOLOR,
-          title: Text(titleString, style: AppTextStyles.qrDetectedDialog),
-          content: Text('Name: $name \nID Number: $studentId', style: AppTextStyles.qrDetectedDialog),
+          title: Text(titleString, style: AppTextStyles.QRDETECTEDDIALOG),
+          content: handleQrDialogContent(name, studentId),
           actions: [
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                await Future.delayed(const Duration(milliseconds: 500));
-                startScanning();
+                await handleRecordData(name, studentId);
+                await Future.delayed(const Duration(milliseconds: 1000));
+                _startScanning();
               },
-              child: const Text('OK'),
+              child: Text('DONE',
+                  style: AppTextStyles.QRDETECTEDDIALOG
+                      .copyWith(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
       ),
-    ).then((_) async {
-      await Future.delayed(const Duration(milliseconds: 500));
-      startScanning();
-    });
-  }
-
-  Future<String> _fetchClaimableBooklets(String studentId) async {
-    try {
-      final studentData = await _service.getStudentById(studentId);
-      return studentData?[AppStrings.CLAIMABLEBOOKLET]?.toString() ?? '0';
-    } catch (e) {
-      debugPrint('Error fetching remaining booklets: $e');
-      return '';
-    }
+    );
   }
 
   Future<void> onQrDetect(BuildContext context, BarcodeCapture capture) async {
     if (isScanning.value) {
-      stopScanning();
+      _stopScanning();
       final code = capture.barcodes.first.rawValue;
       if (code != null) {
         debugPrint('code: $code');
-        handleQrCode(context, code);
+        _handleQrCode(context, code);
       }
     }
   }
 
-  Future<void> _editStudent(String name, String idNumber, bool isBorrowing) async {
-    final now = DateTime.now();
-    final studentData = {
-      AppStrings.STUDENT_NAME: name,
-      AppStrings.STUDENT_ID: idNumber,
-      AppStrings.BORROWSTATUS: isBorrowing,
-    };
 
-    final attendanceData = {
-      AppStrings.DATE: _formatDate(now),
-      AppStrings.TIME: _formatTime(now),
-      AppStrings.EVENTID: BaseController.selectedEvent.value.id,
-    };
-
-    final updateData = {
-      AppStrings.BORROWSTATUS: borrowStatus.value,
-    };
-
-    final updateDataDetails = {
-      AppStrings.DATE: _formatDate(now),
-      AppStrings.TIME: _formatTime(now),
-      AppStrings.DATERETURNED: '',
-      AppStrings.TIMERETURNED: '',
-    };
-
-    if (isBorrowing) {
-      borrowStatus.value = !borrowStatus.value;
-      if (borrowStatus.value) {
-        updateDataDetails[AppStrings.DATERETURNED] = _formatDate(now);
-        updateDataDetails[AppStrings.TIMERETURNED] = _formatTime(now);
-      }
+  // handle which dialog to display
+  dynamic handleQrDialogContent(String name, String studentId) {
+    if (isEventAttendance) {
+      return _eventController.eventAlertDialog(name, studentId);
+    } else if (isBooklet) {
+      return _bookletController.bookletAlertDialog(name, studentId);
+    } else {
+      return _borrowController.borrowAlertDialog(name, studentId);
     }
+  }
 
+  // handle when the user clicks 'DONE' on the dialog
+  // this does not include event attendance because it will automatically record a data for event attendance when isEventAttendance is true
+  // this is to ensure a fast attendance tracking
+  Future<void> handleRecordData(String name, String studentId) async {
     try {
-      await _service.createStudent(
-        studentData,
-        attendanceData,
-        updateData,
-        updateDataDetails,
-      );
-      debugPrint('Attendance recorded');
+      if (isBooklet) {
+        await _bookletController.recordClaimableBooklets(studentId, name);
+      } else if(isBorrowing) {
+        await _borrowController.recordBorrowComponent(name, studentId);
+      }
     } catch (e) {
-      debugPrint('Error adding attendance record: $e');
-      showSnackBar('Error', 'Failed to add attendance record', Colors.red);
+      debugPrint('Error handling record data: $e');
     }
   }
-
-  String _formatDate(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
-
-  String _formatTime(DateTime time) => DateFormat('HH:mm:ss').format(time);
 
   @override
   void onClose() {
     isTorchEnabled.value = false;
+
     super.onClose();
   }
 }

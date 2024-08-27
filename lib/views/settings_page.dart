@@ -35,7 +35,7 @@ class SettingsPage extends BaseView<SettingsController> {
                   const SizedBox(width: 10),
                   Text(
                     'Back to selection',
-                    style: AppTextStyles.settingsTextStyle,
+                    style: AppTextStyles.SETTINGSTEXTSTYLE,
                   )
                 ],
               ),

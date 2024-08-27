@@ -19,4 +19,5 @@ class AppStrings {
   static const BOOKLET = 'Booklet';
   static const BORROWCOMPONENTS = 'Borrow Components';
   static const BORROWSTATUS = 'borrowStatus';
+  static const COMPONENTNAME = 'componentName';
 }

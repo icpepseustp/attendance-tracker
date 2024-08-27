@@ -1,19 +1,25 @@
 import 'dart:async';
 import 'package:attendance_tracker/models/selected_option_model.dart';
+import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class BaseController extends GetxController {
 
+
+  // store the selected event and the selected usage 
   static final Rx<SelectedOptionModel> selectedEvent = SelectedOptionModel(description: '', id: '').obs;
   static final Rx<SelectedOptionModel> selectedUsage = SelectedOptionModel(description: '', id: '').obs;
 
+  // get the description of the selected event and selected usage
+  final isEventAttendance = selectedUsage.value.description == AppStrings.EVENTATTENDANCE;
+  final isBooklet = selectedUsage.value.description == AppStrings.BOOKLET;
+  final isBorrowing = selectedUsage.value.description == AppStrings.BORROWCOMPONENTS;
 
-  @override
-  onInit() {
-    super.onInit();
-  }
+  String formatDate(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
+
+  String formatTime(DateTime time) => DateFormat('HH:mm:ss').format(time);
 
   @protected
   void onShowAlert(String title, String message) {

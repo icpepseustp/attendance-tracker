@@ -68,21 +68,20 @@ class HistoryController extends BaseController {
 
     try {
       isLoading.value = true;
-      final students = await _service.searchStudent(query);
-      debugPrint('$students');
-      studentDetails.clear();
-      studentDetails.addAll(students);
+      // final students = await _service.searchStudent(query);
+      // debugPrint('$students');
+      // studentDetails.clear();
+      // studentDetails.addAll(students);
       isLoading.value = false;
     } catch (e) {
       debugPrint('Error searching students: $e');
     } 
   }
-
-  Future<void> _fetchStudentDetails() async {
+Future<void> _fetchStudentDetails() async {
     try {
-      final students = await _service.getAttendanceForToday(null);
+      // final students = await _service.getAttendanceForToday(null);
       studentDetails.clear();
-      studentDetails.addAll(students);
+      // studentDetails.addAll(students);
       isLoading.value = false;
 
     } catch (e) {

@@ -12,6 +12,7 @@ class EventsSelectionController extends BaseController {
   EventsSelectionController(this._service);
   final FirestoreService _service;
 
+  // list of events to display on the page
   var eventsList = <Map<dynamic, dynamic>>[].obs;
   
   @override
