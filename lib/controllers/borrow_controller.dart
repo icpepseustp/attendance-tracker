@@ -2,6 +2,7 @@ import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -72,21 +73,29 @@ class BorrowController extends BaseController {
     }
     
     try {
-      // update the borrow status of the student
+      
       await _service.updateStudentField(studentId, borrowStatusData);
 
-      final docRef = await _service.getOrCreateDocumentId(studentData, studentId);
+      DocumentSnapshot? docSnapshot = await _service.getStudentById(studentId);
+
+      DocumentReference docRef;
+
+      if(docSnapshot != null && docSnapshot.exists) {
+        docRef = docSnapshot.reference;
+      } else{
+        docRef = await _service.createDoc(studentData);
+      }
 
       final subDocs = await _service.getSubDoc(docRef.id, AppStrings.BORROWDETAILS, AppStrings.DATERETURNED, '');
-      
-      // if the date returned and time returned is not empty, we will simply update the subdocs
+
+       // If the date returned and time returned are not empty, update the sub-docs
       if (subDocs.docs.isNotEmpty) {
         await subDocs.docs.first.reference.update({
           AppStrings.DATERETURNED: borrowDetailsData[AppStrings.DATERETURNED],
           AppStrings.TIMERETURNED: borrowDetailsData[AppStrings.TIMERETURNED],
-      });
+        });
       } else {
-        // if the subdocs are emtpy, we will create new subdocs for the student
+        // If the sub-docs are empty, create new sub-docs for the student
         await _service.createSubDoc(borrowDetailsData, docRef.id, AppStrings.BORROWDETAILS);
       }
     } catch (e) {

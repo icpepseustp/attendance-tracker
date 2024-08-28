@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
-import 'package:attendance_tracker/models/student_details_model.dart';
+import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
@@ -23,7 +23,7 @@ class HistoryController extends BaseController {
 
   var isSearching = false.obs;
 
-  final RxList<StudentDetailsModel> studentDetails = <StudentDetailsModel>[].obs;
+  final RxList<EventHistoryModel> studentDetails = <EventHistoryModel>[].obs;
   final TextEditingController searchController = TextEditingController();
 
   Timer? _debounce;

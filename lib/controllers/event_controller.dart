@@ -1,9 +1,10 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
+import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class EventController extends BaseController {
 
@@ -28,19 +29,52 @@ class EventController extends BaseController {
     };
 
     try {
-      final docRef = await _service.getOrCreateDocumentId(studentData, studentId);
+      DocumentSnapshot? docSnapshot = await _service.getStudentById(studentId);
 
+      DocumentReference docRef;
+
+      // Check if documentSnapshot is null or does not exist
+      if (docSnapshot == null || !docSnapshot.exists) {
+        // Create a new document if not found
+        docRef = await _service.createDoc(studentData);
+      } else {
+        docRef = docSnapshot.reference;
+      }
+
+      // Create the sub-document using the document reference ID
       await _service.createSubDoc(attendanceData, docRef.id, AppStrings.ATTENDANCECOLLECTION);
 
     } catch (e) {
       debugPrint('Error recording new dat:  $e');
     }
   }
-  
 
+  // Future<List<EventHistoryModel>> getEventAttendanceForToday(String? query) async {
+  //   try {
+  //     final mainDocs = await _service.getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
+
+  //     List<EventHistoryModel> eventAttendanceList = [];
+
+  //     await Future.wait(mainDocs.docs.map( (mainDoc) async {
+  //       final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.EVENTATTENDANCE, AppStrings.DATE, formatDate(DateTime.now()));
+  //     }))
+
+  //   } catch (e) {
+      
+  //   }
+  // }
+  
   Text eventAlertDialog(String name, String studentId) {
     return  Text('Name: $name \nID Number: $studentId', style: AppTextStyles.QRDETECTEDDIALOG);
   }
 
+  // Future<List<EventHistoryModel>> fetchEventAttendance(String? query) async {
+  //   try {
+  //     final studentDoc = await _service.getmain
+  //   } catch (e) {
+  //     debugPrint('Error fetching attendance data: $e');
+  //     return [];
+  //   }
+  // }
 
 }

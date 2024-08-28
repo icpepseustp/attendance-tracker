@@ -1,5 +1,5 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
-import 'package:attendance_tracker/models/student_details_model.dart';
+import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,33 +18,8 @@ class FirestoreService extends GetxService {
     return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).doc(docId).collection(collectionPath).add(subDocData);
   }
 
-  
-  // if the document exists, get the id, if it doesnt, create a new document and get the id
-  Future<DocumentSnapshot> getOrCreateDocumentId(Map<String, dynamic> data, String studentId) async {
-  try {
-    final existingDocs = await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION)
-          .where(AppStrings.STUDENT_ID, isEqualTo: studentId)
-          .limit(1)
-          .get();
-
-    if (existingDocs.docs.isNotEmpty) {
-      // Document exists, get the document ID
-      return existingDocs.docs.first;
-    } else {
-      // Document does not exist, create a new document
-      data[AppStrings.CLAIMABLEBOOKLET] = 4; 
-      final docRef = await createDoc(data); 
-      
-      return await docRef.get();
-    } 
-  } catch (e) {
-    debugPrint('Error getting or creating document ID: $e');
-    rethrow;
-  }
-}
-
   // get the main collection
-  Future<QuerySnapshot<Map<String, dynamic>>> _getMainDoc(String? query, String studentDbCollection) async {
+  Future<QuerySnapshot<Map<String, dynamic>>> getMainDoc(String? query, String studentDbCollection) async {
     final collectionRef = _dbFirestore.collection(studentDbCollection);
     if (query != null) {
       return await collectionRef.orderBy(AppStrings.STUDENT_NAME)
@@ -83,23 +58,11 @@ class FirestoreService extends GetxService {
   // }
 
 
+
   // Future<List<StudentDetailsModel>> searchStudent(String query) async {
   //   return query.isEmpty ? [] : await getAttendanceForToday(query);
   // }
 
-  Future<List<Map<dynamic, dynamic>>> getEvents() async {
-    try {
-      final eventsSnapshot = await _getMainDoc(null, AppStrings.EVENTSCOLLECTION);
-      return eventsSnapshot.docs.map((doc) {
-        return {
-          doc.get(AppStrings.EVENTDESCRIPTION): doc.get(AppStrings.EVENTID),
-        };
-      }).toList();
-    } catch (e) {
-      debugPrint('Error fetching event descriptions: $e');
-      return [];
-    }
-  }
 
   Future<DocumentSnapshot?> getStudentById(String studentId) async {
     try {
