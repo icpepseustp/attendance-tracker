@@ -18,10 +18,10 @@ class AppTextStyles{
     )
   );
 
-  static final TextStyle DATEANDTIME = GoogleFonts.poppins(
+  static final TextStyle STUDENTDETAILSSUBTEXT = GoogleFonts.poppins(
     textStyle: const TextStyle(
       color: AppColors.HISTORYICONCOLOR,
-      fontSize: 16,
+      fontSize: 15,
     )
   );
 

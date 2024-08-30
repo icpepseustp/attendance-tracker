@@ -57,15 +57,19 @@ class ScanController extends BaseController {
 
   void _handleQrCode(BuildContext context, String code) async {
     final stringParts = code.split(RegExp(r'\s+'));
-
+    debugPrint('the code for the scanned qr code is: $code');
     if (stringParts.length < 3) {
       debugPrint('Invalid QR code content: $code');
       _startScanning();
       return;
     }
+  // Extract the name
+    final nameStartIndex = code.indexOf('Name:') + 'Name:'.length;
+    final idStartIndex = code.indexOf('ID Number:');
+    final name = code.substring(nameStartIndex, idStartIndex).trim();
 
-    final name = stringParts.sublist(1, stringParts.length - 3).join(' ');
-    final studentId = stringParts.last;
+    // Extract the ID number
+    final studentId = code.substring(idStartIndex + 'ID Number:'.length).trim();
 
     // Determine the message and remaining booklets based on usage type
     String? remainingBooklets;

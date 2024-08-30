@@ -20,6 +20,7 @@ class EventController extends BaseController {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: studentId,
       AppStrings.BORROWSTATUS: isBorrowing,
+      AppStrings.CLAIMABLEBOOKLET: 4
     };
 
     final attendanceData = {
@@ -49,20 +50,23 @@ class EventController extends BaseController {
     }
   }
 
-  // Future<List<EventHistoryModel>> getEventAttendanceForToday(String? query) async {
-  //   try {
-  //     final mainDocs = await _service.getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
-
-  //     List<EventHistoryModel> eventAttendanceList = [];
-
-  //     await Future.wait(mainDocs.docs.map( (mainDoc) async {
-  //       final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.EVENTATTENDANCE, AppStrings.DATE, formatDate(DateTime.now()));
-  //     }))
-
-  //   } catch (e) {
+  Future<List<EventHistoryModel>> fetchEventAttendanceForToday(String? query) async {
+    try {
+      final mainDocs = await _service.getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
+       
+      List<EventHistoryModel> eventAttendanceList = [];
       
-  //   }
-  // }
+      await Future.wait(mainDocs.docs.map( (mainDoc) async {
+        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.ATTENDANCECOLLECTION, AppStrings.DATE, formatDate(DateTime.now()));
+        eventAttendanceList.addAll(subDocs.docs.map( (subDoc) => EventHistoryModel.fromSnapshot(mainDoc, subDoc)));
+      }));
+
+      return eventAttendanceList;
+    } catch (e) {
+      debugPrint('Error fetching attendance: $e');
+      return [];
+  }
+  }
   
   Text eventAlertDialog(String name, String studentId) {
     return  Text('Name: $name \nID Number: $studentId', style: AppTextStyles.QRDETECTEDDIALOG);

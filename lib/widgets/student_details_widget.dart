@@ -1,5 +1,6 @@
 import 'package:attendance_tracker/controllers/history_controller.dart';
 import 'package:attendance_tracker/models/event_history_model.dart';
+import 'package:attendance_tracker/models/history_model.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/widgets/base_widgets.dart';
 import 'package:attendance_tracker/widgets/qr_widget.dart';
@@ -7,11 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class StudentDetailsWidget extends BaseWidget {
-  final List<EventHistoryModel> studentDetails;
+  final List<HistoryModel> studentDetails;
+  final Widget Function(HistoryModel) buildSubText;
 
   const StudentDetailsWidget({
     Key? key,
     required this.studentDetails,
+    required this.buildSubText
   }) : super(key: key);
 
   @override
@@ -39,10 +42,7 @@ class StudentDetailsWidget extends BaseWidget {
                           style: AppTextStyles.STUDENTDETAILS,
                         ),
                         const SizedBox(height: 5),
-                        Text(
-                          '${student.attendanceDate} \t ${student.attendanceTime}',
-                          style: AppTextStyles.DATEANDTIME,
-                        ),
+                        buildSubText(student)
                       ],
                     ),
                   ),

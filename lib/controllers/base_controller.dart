@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 
 class BaseController extends GetxController {
 
-
   // store the selected event and the selected usage 
   static final Rx<SelectedOptionModel> selectedEvent = SelectedOptionModel(description: '', id: '').obs;
   static final Rx<SelectedOptionModel> selectedUsage = SelectedOptionModel(description: '', id: '').obs;
@@ -20,6 +19,7 @@ class BaseController extends GetxController {
   String formatDate(DateTime date) => DateFormat('yyyy-MM-dd').format(date);
 
   String formatTime(DateTime time) => DateFormat('HH:mm:ss').format(time);
+
 
   @protected
   void onShowAlert(String title, String message) {

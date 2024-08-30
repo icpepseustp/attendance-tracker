@@ -1,8 +1,10 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
+import 'package:attendance_tracker/models/booklet_history_model.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -43,8 +45,24 @@ class BookletController extends BaseController {
   Future<void> recordClaimableBooklets(String studentId, String name) async {
     if(!isBooklet) return;
 
+    final studentData = {
+        AppStrings.STUDENT_NAME: name,
+        AppStrings.STUDENT_ID: studentId,
+        AppStrings.BORROWSTATUS: isBorrowing,
+        AppStrings.CLAIMABLEBOOKLET: 4 - bookletCount.value
+    };
+
+    final claimBookletDetails = {
+      AppStrings.DATE: getCurrentDate(),
+      AppStrings.TIME: getCurrentTime(),
+      AppStrings.CLAIMEDBOOKLETS: bookletCount.value
+    };
+
     try {
-      final studentDoc = await _service.getStudentById(studentId);
+      final DocumentSnapshot? studentDoc = await _service.getStudentById(studentId);
+
+      DocumentReference docRef;
+      
 
       if (studentDoc != null && studentDoc.exists) {
         // Document exists, update the claimable booklets
@@ -55,20 +73,34 @@ class BookletController extends BaseController {
         // Ensure booklet count doesn't go below zero
         newBookletCount = newBookletCount < 0 ? 0 : newBookletCount;
 
+        docRef = studentDoc.reference;
         await _service.updateStudentField(studentId, {AppStrings.CLAIMABLEBOOKLET: newBookletCount});
       } else {
         // Document does not exist, create a new one
-        final studentData = {
-          AppStrings.STUDENT_NAME: name,
-          AppStrings.STUDENT_ID: studentId,
-          AppStrings.BORROWSTATUS: isBorrowing,
-          AppStrings.CLAIMABLEBOOKLET: 4 - bookletCount.value
-        };
-
-        await _service.createDoc(studentData);
+        docRef = await _service.createDoc(studentData);
       }
+
+      await _service.createSubDoc(claimBookletDetails, docRef.id, AppStrings.BOOKLETSCLAIMEDCOLLECTION);
     } catch (e) {
       debugPrint('Error updating claimable booklets: $e');
+    }
+  }
+
+  Future<List<BookletHistoryModel>> fetchBookletsClaimedToday () async {
+    try {
+      final mainDocs = await _service.getMainDoc(null, AppStrings.STUDENTSCOLLECTION);
+
+      List<BookletHistoryModel> bookletHistoryList = [];
+
+      await Future.wait( mainDocs.docs.map( (mainDoc) async {
+        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BOOKLETSCLAIMEDCOLLECTION, AppStrings.DATE, getCurrentDate());
+        bookletHistoryList.addAll(subDocs.docs.map( (subDoc) => BookletHistoryModel.fromSnapshot(mainDoc, subDoc)));
+      }));
+
+      return bookletHistoryList;
+    } catch (e) {
+      debugPrint('Error fetching booklet history: $e');
+      return [];
     }
   }
 

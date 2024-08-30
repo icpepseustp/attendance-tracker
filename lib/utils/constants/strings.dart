@@ -3,12 +3,14 @@ import 'package:attendance_tracker/controllers/base_controller.dart';
 class AppStrings {
   static const STUDENTSCOLLECTION = 'studentDetails';
   static const ATTENDANCECOLLECTION = 'attendanceDetails';
-  static const BORROWDETAILS = 'borrowDetails';
+  static const  BORROWDETAILS = 'borrowDetails';
   static const EVENTSCOLLECTION = 'eventDetails';
   static const STUDENTCOURSE = 'studentCourse';
   static const STUDENT_NAME = 'studentName';
   static const STUDENT_ID = 'studentId';
   static const CLAIMABLEBOOKLET = 'claimableBooklet';
+  static const CLAIMEDBOOKLETS = 'claimedBooklets';
+  static const BOOKLETSCLAIMEDCOLLECTION = 'bookletsClaimedDetails';
   static const DATE = 'date';
   static const TIME = 'time';
   static const DATERETURNED = 'dateReturned';

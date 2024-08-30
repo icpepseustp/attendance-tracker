@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/bindings/splash_binding.dart';
+import 'package:attendance_tracker/controllers/navbar_controller.dart';
 import 'package:attendance_tracker/firebase/firebase_options.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/routes/app_pages.dart';
@@ -19,6 +20,8 @@ Future<void> main() async {
   }
   
   Get.put(new FirestoreService());
+  Get.put(NavbarController());
+  
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
     initialBinding: SplashBinding(),

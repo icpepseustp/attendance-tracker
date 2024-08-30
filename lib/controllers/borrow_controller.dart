@@ -1,5 +1,6 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
+import 'package:attendance_tracker/models/borrow_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,6 +41,26 @@ class BorrowController extends BaseController {
     }
   }
 
+  Future<List<BorrowHistoryModel>> fetchBorrowHistory() async {
+    try {
+      final mainDoc = await _service.getMainDoc(null, AppStrings.STUDENTSCOLLECTION);
+
+      List<BorrowHistoryModel> borrowHistoryList = [];
+
+      await Future.wait(mainDoc.docs.map( (mainDoc) async {
+        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BORROWDETAILS, AppStrings.DATE, getCurrentDate());
+        borrowHistoryList.addAll(subDocs.docs.map((subDoc) => BorrowHistoryModel.fromSnapshot(mainDoc, subDoc)));
+      }));
+
+      return borrowHistoryList;
+
+    } catch (e) {
+      debugPrint('Error fetching borrow history: $e');
+      return [];
+    }
+
+  }
+
   // record everytime the student borrows or returns a component  
   Future<void> recordBorrowComponent(String name, String studentId) async {
     final now = DateTime.now();
@@ -51,6 +72,7 @@ class BorrowController extends BaseController {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: studentId,
       AppStrings.BORROWSTATUS: isBorrowing,
+      AppStrings.CLAIMABLEBOOKLET: 4
     };
 
     final borrowStatusData = {
@@ -106,6 +128,7 @@ class BorrowController extends BaseController {
   Column borrowAlertDialog(String name, String studentId) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Name: $name \nID Number: $studentId', 

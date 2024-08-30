@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 
 class FirestoreService extends GetxService {
   final _dbFirestore = FirebaseFirestore.instance;
-  final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   Future<DocumentReference> createDoc(Map<String, dynamic> docData) async {
     return await _dbFirestore.collection(AppStrings.STUDENTSCOLLECTION).add(docData);
@@ -39,25 +38,6 @@ class FirestoreService extends GetxService {
         .where(fieldName, isEqualTo: equalToPath)
         .get();
   }
-
-  // Future<List<StudentDetailsModel>> getAttendanceForToday(String? query) async {
-  //   try {
-  //     final mainDocs = await _getMainDoc(query, AppStrings.STUDENTSCOLLECTION);
-  //     List<StudentDetailsModel> attendanceList = [];
-
-  //     await Future.wait(mainDocs.docs.map((mainDoc) async {
-  //       final subDocs = await _getSubDoc(mainDoc.id);
-  //       attendanceList.addAll(subDocs.docs.map((subDoc) => StudentDetailsModel.fromSnapshot(mainDoc, subDoc)));
-  //     }));
-
-  //     return attendanceList;
-  //   } catch (e) {
-  //     debugPrint('Error fetching attendance data: $e');
-  //     return [];
-  //   }
-  // }
-
-
 
   // Future<List<StudentDetailsModel>> searchStudent(String query) async {
   //   return query.isEmpty ? [] : await getAttendanceForToday(query);

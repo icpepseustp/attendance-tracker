@@ -1,5 +1,4 @@
 import 'package:attendance_tracker/bindings/base_binding.dart';
-import 'package:attendance_tracker/controllers/navbar_controller.dart';
 import 'package:attendance_tracker/controllers/settings_controller.dart';
 import 'package:get/get.dart';
 
@@ -8,10 +7,6 @@ class SettingsBinding extends BaseBinding{
   void dependencies(){
     Get.lazyPut<SettingsController>(
       () => SettingsController()
-    );
-
-    Get.lazyPut<NavbarController>(
-      () => NavbarController()
     );
   }
 }
