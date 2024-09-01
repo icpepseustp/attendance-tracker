@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class HistoryController extends BaseController {
   HistoryController(this._service)
@@ -40,6 +41,7 @@ class HistoryController extends BaseController {
 
   final RxList<HistoryModel> studentHistoryDetails = <HistoryModel>[].obs;
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
 
   Timer? _debounce;
   
@@ -100,6 +102,19 @@ class HistoryController extends BaseController {
     } catch (e) {
       debugPrint('Error searching students: $e');
     } 
+  }
+
+  Future<void> selectDate(BuildContext context) async {
+    DateTime? _picked = await showDatePicker(
+      context: context, 
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000), 
+      lastDate: DateTime(2100)
+    );
+
+    if(_picked != null){
+      dateController.text = _picked.toString().split(' ')[0];
+    }
   }
 
   Widget handleHistoryDisplay() {
@@ -195,6 +210,42 @@ class HistoryController extends BaseController {
             ),
           );
   }
+// void showCalendarDialog(BuildContext context) {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text('Select a Date'),
+//         content: SizedBox(
+//             width: 300,  // You can adjust the width
+//             height: 300, // You can adjust the height
+//             child: TableCalendar(
+//               focusedDay: DateTime.now(),
+//               firstDay: DateTime.utc(2020, 01, 01),
+//               lastDay: DateTime.utc(2100, 12, 31),
+//               onDaySelected: (selectedDay, focusedDay) {
+//                 Navigator.of(context).pop(selectedDay);
+//               },
+//             ),
+//           ),
+        
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.of(context).pop(),
+//             child: Text('DONE'),
+//           ),
+//         ],
+//       );
+//     },
+//   ).then((selectedDate) {
+//     if (selectedDate != null) {
+//       // Handle the selected date here, e.g., update a Text widget
+//       debugPrint('Selected date: $selectedDate');
+//     }
+//   });
+// }
+
+
 
   @override
   void onClose(){

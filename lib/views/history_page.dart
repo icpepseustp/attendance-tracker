@@ -1,6 +1,7 @@
 import 'package:attendance_tracker/controllers/history_controller.dart';
 import 'package:attendance_tracker/routes/app_pages.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
+import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/views/base_view.dart';
 import 'package:attendance_tracker/widgets/navbar_widget.dart';
 import 'package:attendance_tracker/widgets/student_details_widget.dart';
@@ -25,15 +26,35 @@ class HistoryPage extends BaseView<HistoryController> {
             height: 65,
             decoration: BoxDecoration(color: AppColors.BGCOLORDARK),
             child: Align(
-              alignment: Alignment.centerRight,
-              child: Obx(() => controller.handleSearchBar())
-            )
+              alignment: Alignment.centerLeft,
+              child: TextField(
+                controller: controller.dateController,
+                decoration: const InputDecoration(
+                  labelText: 'DATE',
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18
+                  ),
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.only(bottom: 4), // Adjust padding as needed
+                    child: Icon(Icons.calendar_today, size: 19, color: Colors.black),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColors.NAVBARCOLOR),
+                  ),
+                ),
+                onTap: () => controller.selectDate(context),
+              ),
+            ),
           ),
           const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Obx(() => controller.handleHistoryDisplay())
+              child: Obx(() => controller.handleHistoryDisplay()),
             ),
           ),
         ],

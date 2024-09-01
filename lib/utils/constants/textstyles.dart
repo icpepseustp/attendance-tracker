@@ -1,5 +1,6 @@
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTextStyles{
@@ -53,4 +54,13 @@ class AppTextStyles{
       fontSize: 19
     )
   );
+
+  
+  static final TextStyle DATETEXTSTYLE = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: Colors.black,
+      fontSize: 18
+    )
+  );
+  
 }
