@@ -86,14 +86,14 @@ class BookletController extends BaseController {
     }
   }
 
-  Future<List<BookletHistoryModel>> fetchBookletsClaimedToday () async {
+  Future<List<BookletHistoryModel>> fetchBookletsClaimedToday (String selectedDate) async {
     try {
       final mainDocs = await _service.getMainDoc(null, AppStrings.STUDENTSCOLLECTION);
 
       List<BookletHistoryModel> bookletHistoryList = [];
 
       await Future.wait( mainDocs.docs.map( (mainDoc) async {
-        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BOOKLETSCLAIMEDCOLLECTION, AppStrings.DATE, getCurrentDate());
+        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BOOKLETSCLAIMEDCOLLECTION, AppStrings.DATE, selectedDate);
         bookletHistoryList.addAll(subDocs.docs.map( (subDoc) => BookletHistoryModel.fromSnapshot(mainDoc, subDoc)));
       }));
 

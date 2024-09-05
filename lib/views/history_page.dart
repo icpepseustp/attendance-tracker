@@ -35,17 +35,16 @@ class HistoryPage extends BaseView<HistoryController> {
                     color: Colors.black,
                     fontSize: 18
                   ),
-                  prefixIcon: Padding(
-                    padding: EdgeInsets.only(bottom: 4), // Adjust padding as needed
-                    child: Icon(Icons.calendar_today, size: 19, color: Colors.black),
-                  ),
+                  prefixIcon: Icon(Icons.calendar_today, size: 19, color: Colors.black),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: AppColors.NAVBARCOLOR),
                   ),
                 ),
+                
                 onTap: () => controller.selectDate(context),
               ),
             ),

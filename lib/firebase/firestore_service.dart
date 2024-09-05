@@ -39,10 +39,6 @@ class FirestoreService extends GetxService {
         .get();
   }
 
-  // Future<List<StudentDetailsModel>> searchStudent(String query) async {
-  //   return query.isEmpty ? [] : await getAttendanceForToday(query);
-  // }
-
 
   Future<DocumentSnapshot?> getStudentById(String studentId) async {
     try {

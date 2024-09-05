@@ -41,14 +41,14 @@ class BorrowController extends BaseController {
     }
   }
 
-  Future<List<BorrowHistoryModel>> fetchBorrowHistory() async {
+  Future<List<BorrowHistoryModel>> fetchBorrowHistory(String selectedDate) async {
     try {
       final mainDoc = await _service.getMainDoc(null, AppStrings.STUDENTSCOLLECTION);
 
       List<BorrowHistoryModel> borrowHistoryList = [];
 
       await Future.wait(mainDoc.docs.map( (mainDoc) async {
-        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BORROWDETAILS, AppStrings.DATE, getCurrentDate());
+        final subDocs = await _service.getSubDoc(mainDoc.id, AppStrings.BORROWDETAILS, AppStrings.DATE, selectedDate);
         borrowHistoryList.addAll(subDocs.docs.map((subDoc) => BorrowHistoryModel.fromSnapshot(mainDoc, subDoc)));
       }));
 

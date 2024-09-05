@@ -27,7 +27,6 @@ class HistoryController extends BaseController {
       _bookletController = BookletController(_service),
       _borrowController = BorrowController(_service);
 
-
   final FirestoreService _service;
 
     // initialize the controller for each usage
@@ -40,7 +39,6 @@ class HistoryController extends BaseController {
   var isSearching = false.obs;
 
   final RxList<HistoryModel> studentHistoryDetails = <HistoryModel>[].obs;
-  final TextEditingController searchController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
 
   Timer? _debounce;
@@ -48,72 +46,51 @@ class HistoryController extends BaseController {
   @override
   Future<void> onInit() async {
     super.onInit();
+
+    dateController.text = getCurrentDate();
+
     await _fetchHistory();
 
-    searchController.addListener(() {
-      if(_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 500), () {
-        SearchStudent(searchController.text);
-      });
-    });
   }
 
-  void handleSearchTapped() async{
-    isSearching.value = !isSearching.value;
-    if(isSearching.value == false){
-      searchController.text = '';
-      isLoading.value = true;
-      // await _fetchStudentDetails();
-    }
-  }
 
   Future<void> _fetchHistory() async {
+    final String date = dateController.text.trim();
+    debugPrint('${date}');
     if(isEventAttendance){
-      final eventAttendanceHistory = await _eventController.fetchEventAttendanceForToday(null);
+      final eventAttendanceHistory = await _eventController.fetchEventAttendanceForToday(null, date);
+      debugPrint('$eventAttendanceHistory');
       studentHistoryDetails.value = eventAttendanceHistory;
       isLoading.value = false;
     } else if (isBooklet){
-      final bookletHistory = await _bookletController.fetchBookletsClaimedToday();
+      final bookletHistory = await _bookletController.fetchBookletsClaimedToday(date);
       studentHistoryDetails.value = bookletHistory;
       isLoading.value = false;
     }
     else {
-      final borrowHistory = await _borrowController.fetchBorrowHistory();
+      final borrowHistory = await _borrowController.fetchBorrowHistory(date);
       studentHistoryDetails.value = borrowHistory;
       isLoading.value = false;
     }
   }
 
-  Future<void> SearchStudent(String query) async {
-    debugPrint('$query');
-    if (query.isEmpty) {
-      // If the query is empty, fetch all students
-      // await _fetchStudentDetails();
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-      // final students = await _service.searchStudent(query);
-      // debugPrint('$students');
-      // studentDetails.clear();
-      // studentDetails.addAll(students);
-      isLoading.value = false;
-    } catch (e) {
-      debugPrint('Error searching students: $e');
-    } 
-  }
 
   Future<void> selectDate(BuildContext context) async {
+    final initialDate = DateTime.tryParse(dateController.text.trim());
+    
     DateTime? _picked = await showDatePicker(
       context: context, 
-      initialDate: DateTime.now(),
+      initialDate: initialDate,
       firstDate: DateTime(2000), 
       lastDate: DateTime(2100)
     );
 
     if(_picked != null){
       dateController.text = _picked.toString().split(' ')[0];
+
+      isLoading.value = true;
+      await _fetchHistory();
+
     }
   }
 
@@ -150,106 +127,8 @@ class HistoryController extends BaseController {
     }
   }
 
-
-
-  Widget handleSearchBar() {
-    return isSearching.value
-        ? Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    filled: true, // Enable the background fill
-                    fillColor: Colors.white, // Set the background color to white
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.HISTORYICONCOLOR,
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.HISTORYICONCOLOR,
-                        width: 2.0,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.HISTORYICONCOLOR,
-                        width: 1.5,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 13, vertical: 3)
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10), // Add some spacing between the TextField and the cancel icon
-              InkWell(
-                onTap: handleSearchTapped,
-                child: SvgPicture.asset(
-                  AppIcons.CANCELICON,
-                  color: AppColors.HISTORYICONCOLOR,
-                  width: 35,
-                  height: 35,
-                ),
-              ),
-            ],
-          )
-        : InkWell(
-            onTap: handleSearchTapped,
-            child: SvgPicture.asset(
-              AppIcons.SEARCHICON,
-              color: AppColors.HISTORYICONCOLOR,
-              width: 35,
-              height: 35,
-            ),
-          );
-  }
-// void showCalendarDialog(BuildContext context) {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text('Select a Date'),
-//         content: SizedBox(
-//             width: 300,  // You can adjust the width
-//             height: 300, // You can adjust the height
-//             child: TableCalendar(
-//               focusedDay: DateTime.now(),
-//               firstDay: DateTime.utc(2020, 01, 01),
-//               lastDay: DateTime.utc(2100, 12, 31),
-//               onDaySelected: (selectedDay, focusedDay) {
-//                 Navigator.of(context).pop(selectedDay);
-//               },
-//             ),
-//           ),
-        
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(),
-//             child: Text('DONE'),
-//           ),
-//         ],
-//       );
-//     },
-//   ).then((selectedDate) {
-//     if (selectedDate != null) {
-//       // Handle the selected date here, e.g., update a Text widget
-//       debugPrint('Selected date: $selectedDate');
-//     }
-//   });
-// }
-
-
-
   @override
   void onClose(){
-    searchController.dispose();
     _debounce?.cancel();
     super.onClose();
   }
