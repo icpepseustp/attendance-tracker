@@ -9,17 +9,10 @@ import 'package:attendance_tracker/models/booklet_history_model.dart';
 import 'package:attendance_tracker/models/borrow_history_model.dart';
 import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/models/history_model.dart';
-import 'package:attendance_tracker/utils/constants/colors.dart';
-import 'package:attendance_tracker/utils/constants/icons.dart';
-import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
-import 'package:attendance_tracker/widgets/qr_widget.dart';
 import 'package:attendance_tracker/widgets/student_details_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class HistoryController extends BaseController {
   HistoryController(this._service)
