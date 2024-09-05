@@ -15,12 +15,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HistoryController extends BaseController {
-  HistoryController(this._service)
-    : _eventController = EventController(_service),
-      _bookletController = BookletController(_service),
-      _borrowController = BorrowController(_service);
+  HistoryController(FirestoreService service)
+    : _eventController = EventController(service),
+      _bookletController = BookletController(service),
+      _borrowController = BorrowController(service);
 
-  final FirestoreService _service;
+  
 
     // initialize the controller for each usage
   final EventController _eventController;
