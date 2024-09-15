@@ -2,6 +2,7 @@ import 'package:attendance_tracker/controllers/scan_controller.dart';
 import 'package:attendance_tracker/routes/app_pages.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
+import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/views/base_view.dart';
 import 'package:attendance_tracker/widgets/navbar_widget.dart';
 import 'package:attendance_tracker/widgets/scanner_overlay_widget.dart';
@@ -66,29 +67,48 @@ class ScanPage extends BaseView<ScanController> {
               ),
             )
           ),
-            Positioned(
+          Positioned(
             top: 35,
             left: 0,
             right: 0,
-            child: Align(
-              alignment: Alignment.center,
-              child:  InkWell(
-                onTap: controller.toggleTorch,
-                child:  Obx(
-                  () => Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationX(3.1459),
-                    child: SvgPicture.asset(
-                      controller.getTorchIcon(),
-                      color: AppColors.ICONCOLOR,
-                      width: 60,
-                      height: 60,
-                    )
-                  )
-                )
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0), // Adjust the margin as needed
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.BGCOLOR,
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: Text(
+                      controller.isEventAttendance
+                      ? controller.eventsSelectionController.selectedEvent.value.id
+                      : controller.usageSelectionController.selectedUsage.value.description,
+                      style: AppTextStyles.HISTORYLABEL,
+                    ),
+                  ),
+                  const Spacer(),
+                  InkWell(
+                    onTap: controller.toggleTorch,
+                    child: Obx(
+                      () => Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationX(3.1459),
+                        child: SvgPicture.asset(
+                          controller.getTorchIcon(),
+                          color: AppColors.ICONCOLOR,
+                          width: 50,
+                          height: 50,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+          )
+
         ],
       ),
     );

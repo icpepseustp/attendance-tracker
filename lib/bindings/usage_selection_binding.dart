@@ -4,9 +4,8 @@ import 'package:get/get.dart';
 
 class UsageSelectionBinding extends BaseBinding {
   @override
-  void dependencies(){
-    Get.lazyPut<UsageSelectionController>(
-      () => UsageSelectionController()
-    );
+  void dependencies() {
+    // Use Get.put to initialize immediately and ensure it's a singleton
+    Get.put<UsageSelectionController>(UsageSelectionController(), permanent: true);
   }
 }

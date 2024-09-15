@@ -63,4 +63,10 @@ class AppTextStyles{
     )
   );
   
+  static final TextStyle HISTORYLABEL = GoogleFonts.poppins(
+    textStyle: const TextStyle(
+      color: Colors.black,
+      fontSize: 15
+    )
+  );
 }

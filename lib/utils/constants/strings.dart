@@ -1,4 +1,3 @@
-import 'package:attendance_tracker/controllers/base_controller.dart';
 
 class AppStrings {
   static const STUDENTSCOLLECTION = 'studentDetails';

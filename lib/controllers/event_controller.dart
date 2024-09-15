@@ -1,4 +1,6 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/controllers/events_selection_controller.dart';
+import 'package:attendance_tracker/controllers/usage_selection_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
@@ -8,10 +10,13 @@ import 'package:flutter/material.dart';
 
 class EventController extends BaseController {
 
-  EventController(this._service);
+  EventController(this._service)
+                  : _eventsSelectionController = EventsSelectionController(_service),
+                    _usageSelectionController = UsageSelectionController();
   
   final FirestoreService _service;
-
+  final UsageSelectionController _usageSelectionController;
+  final EventsSelectionController _eventsSelectionController;
 
   Future<void> recordEventAttendance(String name, String studentId)async {
     final now = DateTime.now();
@@ -19,14 +24,14 @@ class EventController extends BaseController {
     final studentData = {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: studentId,
-      AppStrings.BORROWSTATUS: isBorrowing,
+      AppStrings.BORROWSTATUS: _usageSelectionController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS,
       AppStrings.CLAIMABLEBOOKLET: 4
     };
 
     final attendanceData = {
       AppStrings.DATE: formatDate(now),
       AppStrings.TIME: formatTime(now),
-      AppStrings.EVENTID: BaseController.selectedEvent.value.id,
+      AppStrings.EVENTID: _eventsSelectionController.selectedEvent.value.id,
     };
 
     try {

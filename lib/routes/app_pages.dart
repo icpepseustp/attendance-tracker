@@ -1,12 +1,9 @@
 // app_pages.dart
 import 'package:attendance_tracker/bindings/events_selection_binding.dart';
 import 'package:attendance_tracker/bindings/history_binding.dart';
-import 'package:attendance_tracker/bindings/settings_binding.dart';
 import 'package:attendance_tracker/bindings/usage_selection_binding.dart';
-import 'package:attendance_tracker/controllers/usage_selection_controller.dart';
 import 'package:attendance_tracker/views/events_selection_page.dart';
 import 'package:attendance_tracker/views/history_page.dart';
-import 'package:attendance_tracker/views/settings_page.dart';
 import 'package:attendance_tracker/views/usage_selection_page.dart';
 import 'package:get/get.dart';
 import 'package:attendance_tracker/views/scan_page.dart';
@@ -50,13 +47,6 @@ abstract class AppPages {
       name: Routes.HISTORY, 
       page: () => const HistoryPage(),
       binding: HistoryBinding(),
-      transition: Transition.noTransition,
-      transitionDuration: const Duration(milliseconds: 300),
-    ),
-    GetPage(
-      name: Routes.SETTINGS, 
-      page: () => const SettingsPage(),
-      binding: SettingsBinding(),
       transition: Transition.noTransition,
       transitionDuration: const Duration(milliseconds: 300),
     ),

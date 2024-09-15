@@ -6,10 +6,11 @@ import 'package:get/get.dart';
 class EventsSelectionBinding extends BaseBinding {
   @override
   void dependencies(){
-    Get.lazyPut<EventsSelectionController>(
-      () => EventsSelectionController(
+    Get.put<EventsSelectionController>(
+      EventsSelectionController(
         Get.find<FirestoreService>()
-      )
+      ), 
+      permanent: true
     );
   }
 }

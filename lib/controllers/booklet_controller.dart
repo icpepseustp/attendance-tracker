@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/controllers/usage_selection_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/models/booklet_history_model.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
@@ -11,10 +12,11 @@ import 'package:get/get.dart';
 class BookletController extends BaseController {
 
   // constrcutor for the firesore service
-  BookletController(this._service);
+  BookletController(this._service, this._usageSelectionController);
 
   // initialize the firestore service
   final FirestoreService _service;
+  final UsageSelectionController _usageSelectionController;
 
   // initialize the booklet count that the student can claim
   var bookletCount = 0.obs;
@@ -43,12 +45,12 @@ class BookletController extends BaseController {
 
   // record everytime a student claims a booklet
   Future<void> recordClaimableBooklets(String studentId, String name) async {
-    if(!isBooklet) return;
+    if(_usageSelectionController.selectedUsage.value.description != AppStrings.BOOKLET) return;
 
     final studentData = {
         AppStrings.STUDENT_NAME: name,
         AppStrings.STUDENT_ID: studentId,
-        AppStrings.BORROWSTATUS: isBorrowing,
+        AppStrings.BORROWSTATUS: _usageSelectionController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS,
         AppStrings.CLAIMABLEBOOKLET: 4 - bookletCount.value
     };
 

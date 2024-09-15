@@ -2,6 +2,7 @@ import 'package:attendance_tracker/controllers/events_selection_controller.dart'
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:attendance_tracker/views/base_view.dart';
+import 'package:attendance_tracker/widgets/selection_option_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,7 +29,30 @@ class EventsSelectionPage extends BaseView {
                 'Select current event',
                 style: AppTextStyles.SELECTEVENTLABEL,
               ),
-              Obx(() => controller.handleEventsLoaded())
+              Obx(
+                () =>  controller.eventsList.isNotEmpty
+                  ? Expanded(
+                      child: ListView.builder(
+                          itemCount: controller.eventsList.length,
+                          itemBuilder: (context, index) {
+                            final event = controller.eventsList[index];
+                            final eventDescription = event.keys.first;
+                            final eventId = event[eventDescription];
+
+                            return Container(
+                            margin: const EdgeInsets.only(bottom: 25),
+                            child: SelectionOptionWidget(
+                              optionDescription: eventDescription,
+                              optionId: eventId, 
+                              onPressed: (eventDescription, eventId) => controller.handleEventClicked(eventDescription, eventId))
+                          );
+                          }))
+                  : const Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    )
+              )
             ],
           ),
         ),

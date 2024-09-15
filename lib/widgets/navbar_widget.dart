@@ -44,11 +44,9 @@ class NavbarWidget extends BaseWidget implements PreferredSizeWidget {
               currentPage: currentPage,
             ),
             NavbarIconWidget(
-              icon: AppIcons.SETTINGS, 
+              icon: AppIcons.LEAVEICON, 
               controller: controller, 
-              label: 'Settings', 
-              navRoute: Routes.SETTINGS,
-              currentPage: currentPage,
+              label: 'Leave', 
             ),
           ],
         ),

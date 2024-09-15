@@ -15,7 +15,7 @@ class UsageSelectionPage extends BaseView<UsageSelectionController> {
       body: Center(
         child: Container(
           width: MediaQuery.sizeOf(context).width * 0.85,
-          height: 400,
+          height: 450,
           padding: const EdgeInsets.all(25),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(18)),

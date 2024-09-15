@@ -1,4 +1,5 @@
 import 'package:attendance_tracker/controllers/base_controller.dart';
+import 'package:attendance_tracker/controllers/usage_selection_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/models/borrow_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
@@ -6,13 +7,13 @@ import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class BorrowController extends BaseController {
   
-  BorrowController(this._service);
+  BorrowController(this._service, this._usageSelectionController);
 
   final FirestoreService _service;
+  final UsageSelectionController _usageSelectionController;
 
   // initialize the borrow status of the 
   var borrowStatus = true.obs;
@@ -71,7 +72,7 @@ class BorrowController extends BaseController {
     final studentData = {
       AppStrings.STUDENT_NAME: name,
       AppStrings.STUDENT_ID: studentId,
-      AppStrings.BORROWSTATUS: isBorrowing,
+      AppStrings.BORROWSTATUS: _usageSelectionController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS,
       AppStrings.CLAIMABLEBOOKLET: 4
     };
 

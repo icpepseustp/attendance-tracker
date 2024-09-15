@@ -1,10 +1,7 @@
-import 'package:attendance_tracker/controllers/base_controller.dart';
-import 'package:attendance_tracker/models/event_history_model.dart';
 import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 
 class FirestoreService extends GetxService {
   final _dbFirestore = FirebaseFirestore.instance;

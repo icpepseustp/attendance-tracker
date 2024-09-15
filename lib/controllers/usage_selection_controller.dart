@@ -20,14 +20,16 @@ class UsageSelectionController extends BaseController {
     ),
   ];
 
+  final Rx<SelectedOptionModel> selectedUsage = SelectedOptionModel(description: '', id: '').obs;
+
   void handleUsageOptionClicked(String usageDescription, String usageId){
-    BaseController.selectedUsage.value = SelectedOptionModel(
+    selectedUsage.value = SelectedOptionModel(
       description: usageDescription, 
       id: usageId
     );
-    usageDescription == AppStrings.EVENTATTENDANCE
-      ? Get.toNamed(Routes.EVENTS)
-      : Get.offAndToNamed(Routes.SCAN);
+    Get.offAndToNamed(
+      usageDescription == AppStrings.EVENTATTENDANCE ? Routes.EVENTS : Routes.SCAN
+    );
   }
 
 

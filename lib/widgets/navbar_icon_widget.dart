@@ -8,50 +8,53 @@ import 'package:flutter_svg/flutter_svg.dart';
 class NavbarIconWidget extends BaseWidget {
   final String icon;
   final String label;
-  final String navRoute;
-  final String currentPage;
+  final String? navRoute;  // Nullable navRoute
+  final String? currentPage;  // Nullable currentPage
   final NavbarController controller;
-    
+
   const NavbarIconWidget({
     Key? key,
     required this.icon,
     required this.label,
-    required this.navRoute,
-    required this.currentPage,
-    required this.controller
-  });
+    this.navRoute,
+    this.currentPage,
+    required this.controller,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Expanded(
       child: InkWell(
-        onTap: () => controller.handleOnTap(navRoute),
+        onTap: () {
+          // Use a default route if navRoute is null
+          controller.handleOnTap(navRoute);
+        },
         child: Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: controller.handleIsSelected(currentPage, navRoute),
-            width: 5
-          )
-        )
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: controller.handleIsSelected(currentPage, navRoute),
+                width: 5,
+              ),
+            ),
+          ),
+          child: Column(
+            children: [
+              SvgPicture.asset(
+                icon,
+                width: 35,
+                height: 35,
+                color: AppColors.ICONCOLOR,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                label,
+                style: AppTextStyles.NAVICONLABELPOPPINS,
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Column(
-      children: [
-        SvgPicture.asset(
-          icon,
-          width: 35,
-          height: 35,
-          color: AppColors.ICONCOLOR,
-        ),
-        const SizedBox(height: 5),
-        Text(
-          label,
-          style: AppTextStyles.NAVICONLABELPOPPINS
-        ),
-      ],
-    ),
-    ),
-      )
     );
   }
 }

@@ -2,6 +2,8 @@ import 'package:attendance_tracker/controllers/base_controller.dart';
 import 'package:attendance_tracker/controllers/booklet_controller.dart';
 import 'package:attendance_tracker/controllers/borrow_controller.dart';
 import 'package:attendance_tracker/controllers/event_controller.dart';
+import 'package:attendance_tracker/controllers/events_selection_controller.dart';
+import 'package:attendance_tracker/controllers/usage_selection_controller.dart';
 import 'package:attendance_tracker/firebase/firestore_service.dart';
 import 'package:attendance_tracker/utils/constants/colors.dart';
 import 'package:attendance_tracker/utils/constants/icons.dart';
@@ -9,14 +11,21 @@ import 'package:attendance_tracker/utils/constants/strings.dart';
 import 'package:attendance_tracker/utils/constants/textstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanController extends BaseController {
-  ScanController(this._service)
+  ScanController(this._service, this.usageSelectionController)
       : _eventController = EventController(_service),
-        _bookletController = BookletController(_service),
-        _borrowController = BorrowController(_service);
+        _bookletController = BookletController(_service, usageSelectionController),
+        _borrowController = BorrowController(_service, usageSelectionController),
+        eventsSelectionController = EventsSelectionController(_service){
+        // Conditionally initialize EventsSelectionController
+        // Check if EventsSelectionController is registered
+        if (Get.isRegistered<EventsSelectionController>()) {
+          // If registered, retrieve the existing instance
+          eventsSelectionController = Get.find<EventsSelectionController>();
+        }
+      }
 
   // get the firestore service
   final FirestoreService _service;
@@ -25,6 +34,20 @@ class ScanController extends BaseController {
   final EventController _eventController;
   final BookletController _bookletController;
   final BorrowController _borrowController;
+  final UsageSelectionController usageSelectionController;
+  late EventsSelectionController eventsSelectionController;
+
+  late bool isEventAttendance;
+  late bool isBooklet;
+  late bool isBorrowing;
+
+  @override
+  void onInit() {
+    super.onInit();
+    isEventAttendance = usageSelectionController.selectedUsage.value.description == AppStrings.EVENTATTENDANCE;
+    isBooklet = usageSelectionController.selectedUsage.value.description == AppStrings.BOOKLET;
+    isBorrowing = usageSelectionController.selectedUsage.value.description == AppStrings.BORROWCOMPONENTS;
+  }
 
   // initialize the scanning status of the scanner
   var isScanning = true.obs;
@@ -36,8 +59,7 @@ class ScanController extends BaseController {
   var isTorchEnabled = false.obs;
 
   // get the controller for the mobile scanner
-  final MobileScannerController mobileScannerController =
-      MobileScannerController();
+  final MobileScannerController mobileScannerController = MobileScannerController();
 
   // get the torch icon when it is enabled or disabled
   String getTorchIcon() =>isTorchEnabled.value ? AppIcons.TORCHONICON : AppIcons.TORCHOFFICON;
@@ -55,6 +77,8 @@ class ScanController extends BaseController {
   // function for handling the painter size when the user wants to adjust it
   void handleDisplaySizeChange(double value) => overlaySize.value = value;
 
+
+  // handling qr code 
   void _handleQrCode(BuildContext context, String code) async {
     final stringParts = code.split(RegExp(r'\s+'));
     debugPrint('the code for the scanned qr code is: $code');
@@ -77,7 +101,7 @@ class ScanController extends BaseController {
     
 
     if (isEventAttendance) {
-      message = BaseController.selectedEvent.value.description;
+      message = eventsSelectionController.selectedEvent.value.description;
 
       await _eventController.recordEventAttendance(name, studentId);
     } else if (isBooklet) {
@@ -95,6 +119,8 @@ class ScanController extends BaseController {
     // Show the QR dialog with the appropriate details
     _showQrDialog(context, name, studentId, remainingBooklets, message);
   }
+
+
 
   void _showQrDialog(BuildContext context, String name, String studentId,
       String? remainingBooklets, String titleString) {
@@ -169,7 +195,6 @@ class ScanController extends BaseController {
   @override
   void onClose() {
     isTorchEnabled.value = false;
-
     super.onClose();
   }
 }
