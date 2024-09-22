@@ -11,14 +11,12 @@ import 'package:flutter/material.dart';
 class EventController extends BaseController {
 
   EventController(this._service)
-                  : _eventsSelectionController = EventsSelectionController(_service),
-                    _usageSelectionController = UsageSelectionController();
+                    : _usageSelectionController = UsageSelectionController();
   
   final FirestoreService _service;
   final UsageSelectionController _usageSelectionController;
-  final EventsSelectionController _eventsSelectionController;
 
-  Future<void> recordEventAttendance(String name, String studentId)async {
+  Future<void> recordEventAttendance(String name, String studentId, String eventId)async {
     final now = DateTime.now();
     
     final studentData = {
@@ -31,7 +29,7 @@ class EventController extends BaseController {
     final attendanceData = {
       AppStrings.DATE: formatDate(now),
       AppStrings.TIME: formatTime(now),
-      AppStrings.EVENTID: _eventsSelectionController.selectedEvent.value.id,
+      AppStrings.EVENTID: eventId,
     };
 
     try {
