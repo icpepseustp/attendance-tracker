@@ -45,6 +45,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        resValue "string", "app_name", "ICpEP Attendance Tracker"
     }
 
     buildTypes {

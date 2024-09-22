@@ -55,5 +55,5 @@ class NavbarWidget extends BaseWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(80); // Set a fixed height
+  Size get preferredSize => const Size.fromHeight(80); 
 }
