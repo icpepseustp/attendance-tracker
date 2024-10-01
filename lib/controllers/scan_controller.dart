@@ -77,15 +77,14 @@ class ScanController extends BaseController {
   // function for handling the painter size when the user wants to adjust it
   void handleDisplaySizeChange(double value) => overlaySize.value = value;
 
-
   // handling qr code 
   void _handleQrCode(BuildContext context, String code) async {
    debugPrint('the code for the scanned QR code is: $code');
 
     // Use a regular expression to match name and ID number.
-    final RegExp namePattern = RegExp(r'(Name:\s*)([\w\s.]+)');
-    final RegExp idPattern = RegExp(r'(ID Number:\s*)(\d+)');
-    
+    final RegExp namePattern = RegExp(r'Name:\s*([\w\s.]+)(?=\s+ID Number)');
+    final RegExp idPattern = RegExp(r'ID Number:\s*(\d+)');
+
     // Try matching using both patterns.
     final nameMatch = namePattern.firstMatch(code);
     final idMatch = idPattern.firstMatch(code);
@@ -95,17 +94,18 @@ class ScanController extends BaseController {
 
     // If it matches the first format (with "Name:" and "ID Number:")
     if (nameMatch != null && idMatch != null) {
-      name = nameMatch.group(2)!.trim();  // Extract the name.
-      studentId = idMatch.group(2)!.trim(); // Extract the ID.
+      name = nameMatch.group(1)!.trim();  // Extract the name.
+      studentId = idMatch.group(1)!.trim(); // Extract the ID.
     } 
     // If it matches the second format (just name and ID without labels)
     else {
       final stringParts = code.split(RegExp(r'\s+'));
       if (stringParts.length >= 2) {
         name = stringParts.sublist(0, stringParts.length - 1).join(' ').trim(); // Extract the name.
-        studentId = stringParts.last.trim(); // Extract the ID number.
+        studentId = stringParts.last.trim();
       }
     }
+
 
     // Determine the message and remaining booklets based on usage type
     String? remainingBooklets;
@@ -114,8 +114,7 @@ class ScanController extends BaseController {
 
     if (isEventAttendance) {
       message = eventsSelectionController.selectedEvent.value.description;
-
-      await _eventController.recordEventAttendance(name, studentId, eventsSelectionController.selectedEvent.value.id);
+      // await _eventController.recordEventAttendance(name, studentId, eventsSelectionController.selectedEvent.value.id);
     } else if (isBooklet) {
       remainingBooklets = await _bookletController.fetchClaimableBooklets(studentId);
       message = remainingBooklets == '0'
@@ -193,15 +192,15 @@ class ScanController extends BaseController {
   // this does not include event attendance because it will automatically record a data for event attendance when isEventAttendance is true
   // this is to ensure a fast attendance tracking
   Future<void> handleRecordData(String name, String studentId) async {
-    try {
-      if (isBooklet) {
-        await _bookletController.recordClaimableBooklets(studentId, name);
-      } else if(isBorrowing) {
-        await _borrowController.recordBorrowComponent(name, studentId);
-      }
-    } catch (e) {
-      debugPrint('Error handling record data: $e');
-    }
+    // try {
+    //   if (isBooklet) {
+    //     await _bookletController.recordClaimableBooklets(studentId, name);
+    //   } else if(isBorrowing) {
+    //     await _borrowController.recordBorrowComponent(name, studentId);
+    //   }
+    // } catch (e) {
+    //   debugPrint('Error handling record data: $e');
+    // }
   }
 
   @override
