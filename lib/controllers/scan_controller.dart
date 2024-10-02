@@ -114,7 +114,7 @@ class ScanController extends BaseController {
 
     if (isEventAttendance) {
       message = eventsSelectionController.selectedEvent.value.description;
-      // await _eventController.recordEventAttendance(name, studentId, eventsSelectionController.selectedEvent.value.id);
+      await _eventController.recordEventAttendance(name, studentId, eventsSelectionController.selectedEvent.value.id);
     } else if (isBooklet) {
       remainingBooklets = await _bookletController.fetchClaimableBooklets(studentId);
       message = remainingBooklets == '0'
@@ -192,15 +192,15 @@ class ScanController extends BaseController {
   // this does not include event attendance because it will automatically record a data for event attendance when isEventAttendance is true
   // this is to ensure a fast attendance tracking
   Future<void> handleRecordData(String name, String studentId) async {
-    // try {
-    //   if (isBooklet) {
-    //     await _bookletController.recordClaimableBooklets(studentId, name);
-    //   } else if(isBorrowing) {
-    //     await _borrowController.recordBorrowComponent(name, studentId);
-    //   }
-    // } catch (e) {
-    //   debugPrint('Error handling record data: $e');
-    // }
+    try {
+      if (isBooklet) {
+        await _bookletController.recordClaimableBooklets(studentId, name);
+      } else if(isBorrowing) {
+        await _borrowController.recordBorrowComponent(name, studentId);
+      }
+    } catch (e) {
+      debugPrint('Error handling record data: $e');
+    }
   }
 
   @override
